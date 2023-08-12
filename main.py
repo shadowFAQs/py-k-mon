@@ -7,6 +7,22 @@ from color import BLACK, GBA_DIMS, GRAY, TRANSPARENT
 from trainer import Trainer
 
 
+def get_camera_offset(area: Area,
+                      trainer_coords: tuple[float]) -> tuple[float]:
+    """Center the trainer on screen without
+    showing anything past the area boundaries.
+    """
+    screen_center = (GBA_DIMS[0] / 2, GBA_DIMS[1] / 2)
+    x_from_center = pg.math.clamp(
+        screen_center[0] - trainer_coords[0],
+        GBA_DIMS[0] - area.dimensions()[0], 0)
+    y_from_center = pg.math.clamp(
+        screen_center[1] - trainer_coords[1],
+        GBA_DIMS[1] - area.dimensions()[1], 0)
+
+    return (x_from_center, y_from_center)
+
+
 def get_dpad_input(dpad: list[bool]):
     try:
         match dpad[-1]:
@@ -47,13 +63,16 @@ def update_screen(screen, small_screen, area, trainer, debug):
     screen.fill(BLACK)
     small_screen.fill(GRAY)
 
-    small_screen.blit(area.image, (0, 0))
+    camera_offset = get_camera_offset(area, trainer.center())
+
+    small_screen.blit(area.image, camera_offset)
 
     for entity in [trainer]:
-        small_screen.blit(entity.image, entity.coords() + area.offset)
+        small_screen.blit(entity.image,
+                          entity.coords() + area.offset + camera_offset)
 
     location = debug.render(
-        f'{trainer.location.x}, {trainer.location.y}', False, BLACK)
+        f'{camera_offset[0]}', False, BLACK)
 
     small_screen.blit(location, (180, 20))
 

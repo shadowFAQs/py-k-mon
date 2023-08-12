@@ -38,8 +38,8 @@ class Trainer(pg.sprite.Sprite):
                 self.frame = 0
 
     def center(self) -> tuple[float]:
-        return (self.location.x + self.rect.width / 2,
-                self.location.y - self.rect.height / 2)
+        return (self.location.x * 16 + self.rect.width  / 2,
+                self.location.y * 16 - self.rect.height / 2)
 
     def coords(self) -> tuple[float]:
         return (self.location.x * 16, self.location.y * 16)
