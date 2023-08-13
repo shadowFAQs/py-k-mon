@@ -11,24 +11,31 @@ class Doodad(pg.sprite.Sprite):
                  show_in_front_of_trainer: bool):
         pg.sprite.Sprite.__init__(self)
 
-        self.location                 = Vector2(location)  # 16px tile grid
-        self.draw_foreground_image    = False              # location
+        self.grid_location            = Vector2(location)
         self.show_in_front_of_trainer = show_in_front_of_trainer
+
+        self.draw_foreground_image = False
 
         self.load_image(doodad_type)
 
     def center(self) -> tuple[float]:
-        return (self.location.x * 16 + self.rect.width  / 2,
-                self.location.y * 16 - self.rect.height / 2)
+        return (self.grid_location.x * 16 + self.rect.width  / 2,
+                self.grid_location.y * 16 - self.rect.height / 2)
 
     def colliding_with(self, rect) -> bool:
         return self.rect.colliderect(rect)
 
     def coords(self) -> tuple[float]:
-        return (self.location.x * 16, self.location.y * 16)
+        return (self.grid_location.x * 16, self.grid_location.y * 16)
 
     def draw(self):
         pass
+
+    def is_nearby(self, point: Vector2, threshold:int = 64) -> bool:
+        if abs(self.grid_location.x - point.x) <= threshold:
+            return abs(self.grid_location.y - point.y) <= threshold
+
+        return False
 
     def load_image(self, doodad_type: str):
         self.image = pg.image.load(os.path.join(

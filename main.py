@@ -64,13 +64,17 @@ def handle_keyup(dpad: list[int], key: int) -> list[int]:
 def sort_entites_for_display(doodads: list[Doodad],
                              trainer: Trainer) -> list:
     # Doodads are already sorted by Y value
-    behind_trainer = [d for d in doodads if d.location.y < trainer.location.y]
+    # TODO: Only blit entities that will be on the screen
+    behind_trainer = [d for d in doodads \
+        if d.grid_location.y < trainer.grid_location.y]
     in_front_of_trainer = [d for d in doodads \
-        if d.location.y >= trainer.location.y]
+        if d.grid_location.y >= trainer.grid_location.y]
 
-    for doodad in doodads:
-        if doodad.show_in_front_of_trainer and doodad.colliding_with(trainer.rect):
-            doodad.draw_foreground_image = True
+    # Only check overlaps for nearby, valid entities
+    for doodad in [d for d in doodads if d.show_in_front_of_trainer]:
+        if doodad.is_nearby(trainer.grid_location):
+            if doodad.colliding_with(trainer.rect):
+                doodad.draw_foreground_image = True
 
     return behind_trainer + [trainer] + in_front_of_trainer
 
@@ -91,6 +95,7 @@ def update_screen(screen, small_screen, area, trainer, debug):
         small_screen.blit(entity.image, (x, y))
 
     for doodad in [d for d in area.doodads if d.draw_foreground_image]:
+        doodad.draw_foreground_image = False
         x = entity.coords()[0] + camera_offset[0]
         y = entity.coords()[1] + camera_offset[1]
         small_screen.blit(doodad.foreground_image, (x, y))

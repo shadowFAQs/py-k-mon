@@ -10,7 +10,7 @@ class Trainer(pg.sprite.Sprite):
     def __init__(self, location: Vector2):
         pg.sprite.Sprite.__init__(self)
 
-        self.location = location  # 16px tile grid location
+        self.grid_location = location
 
         self.action          = 'stand'
         self.facing          = 1  # Up, Down, Left, Right
@@ -22,7 +22,7 @@ class Trainer(pg.sprite.Sprite):
         self.input_counter   = 0
         self.input_delay     = 3
         self.rect            = None
-        self.target_location = self.location
+        self.target_location = self.grid_location
         self.walk_speed      = 0.1
 
         self.load_images('trainer')
@@ -38,23 +38,22 @@ class Trainer(pg.sprite.Sprite):
                 self.frame = 0
 
     def center(self) -> tuple[float]:
-        # Add 1 to Y location because trainer sprite is 2 tiles tall
-        return (self.location.x * 16 + self.rect.width  / 2,
-                (self.location.y - 1) * 16 - self.rect.height / 2)
+        # Y - 1 because trainer sprite is 2 tiles tall
+        return (self.grid_location.x * 16 + self.rect.width  / 2,
+                (self.grid_location.y - 1) * 16 - self.rect.height / 2)
 
     def coords(self) -> tuple[float]:
-        # Add 1 to Y location because trainer sprite is 2 tiles tall
-        return (self.location.x * 16, (self.location.y - 1) * 16)
+        return (self.grid_location.x * 16, (self.grid_location.y - 1) * 16)
 
     def draw(self):
         if self.action == 'walk':
-            self.location.move_towards_ip(
+            self.grid_location.move_towards_ip(
                 self.target_location, self.walk_speed)
 
         self.image = self.images[self.action][self.facing][self.frame]
         self.image.set_colorkey(TRANSPARENT)
         self.rect = self.image.get_rect(
-            topleft=(self.location.x, self.location.y))
+            topleft=(self.grid_location.x, self.grid_location.y))
 
         self.advance_animation()
 
@@ -77,18 +76,18 @@ class Trainer(pg.sprite.Sprite):
 
         match self.facing:
             case 0:
-                target = self.location + Vector2(0, -1)
+                target = self.grid_location + Vector2(0, -1)
             case 1:
-                target = self.location + Vector2(0, 1)
+                target = self.grid_location + Vector2(0, 1)
             case 2:
-                target = self.location + Vector2(-1, 0)
+                target = self.grid_location + Vector2(-1, 0)
             case 3:
-                target = self.location + Vector2(1, 0)
+                target = self.grid_location + Vector2(1, 0)
 
         if area.is_passable(target):
             self.target_location = target
         else:
-            self.target_location = self.location
+            self.target_location = self.grid_location
 
     def set_action_from_input(self, area, direction):
         if self.action == 'stand':
@@ -102,7 +101,7 @@ class Trainer(pg.sprite.Sprite):
                     self.move(area)
 
         elif self.action == 'walk':
-            if self.location == self.target_location:
+            if self.grid_location == self.target_location:
                 if direction is None:
                     self.stop()
                 else:
@@ -116,15 +115,15 @@ class Trainer(pg.sprite.Sprite):
         snaps the location there when it's close
         enough.
         '''
-        if abs(self.location.x - self.target_location.x) <= 0.1:
-            self.location.x = self.target_location.x
-        if abs(self.location.y - self.target_location.y) <= 0.1:
-            self.location.y = self.target_location.y
+        if abs(self.grid_location.x - self.target_location.x) <= 0.1:
+            self.grid_location.x = self.target_location.x
+        if abs(self.grid_location.y - self.target_location.y) <= 0.1:
+            self.grid_location.y = self.target_location.y
 
     def stop(self):
         self.action = 'stand'
         self.input_counter = 0
-        self.target_location = self.location
+        self.target_location = self.grid_location
 
     def update(self, area, direction=None):
         self.snap_location_to_grid()

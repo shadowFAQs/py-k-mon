@@ -39,7 +39,7 @@ class Area:
                 self.doodads.append(Doodad(doodad['type'], location,
                                            doodad['showInFrontOfTrainer']))
 
-        self.doodads.sort(key=lambda d: d.location.y)
+        self.doodads.sort(key=lambda d: d.grid_location.y)
 
     def load_map_data(self):
         with open(os.path.join('data', 'maps.json')) as f:
@@ -55,10 +55,9 @@ class Area:
 
         self.start_location = Vector2(self.map_data['startLocation'])
 
-        # Boolean 2D array, such that each x, y
-        # point is passable (1) or not (0)
+        # Boolean 2D array, such that each (x, y) is passable (1) or not (0)
         filename = f'{self.formatted_name}_passable.png'
         array = pg.surfarray.pixels2d(
             pg.image.load(os.path.join('lib', 'maps', filename)).convert(16))
-        array.flat = [bool(n) for n in array.flat]  # bool(n) works here
-        self.passable = array                       # because black is 0
+        array.flat = [bool(n) for n in array.flat]
+        self.passable = array
