@@ -1,0 +1,70 @@
+{
+	"areas": [
+		{
+			"name": "Pallet Town",
+			"startLocation": [15, 9],
+			"doodads": [
+				{
+					"type": "house1",
+					"locations": [[5, 3], [14, 3]],
+					"showInFrontOfTrainer": true
+				},
+				{
+					"type": "tree1",
+					"locations": [[0, -1], [2, -1], [4, -1], [6, -1], [8, -1], [10, -1], [14, -1], [16, -1], [18, -1], [20, -1], [22, -1], [0, 1], [0, 3], [0, 5], [0, 7], [0, 9], [0, 11], [0, 13], [0, 15], [0, 17], [0, 19]],
+					"showInFrontOfTrainer": true
+				}
+			],
+			"events": [
+				{
+					"type": "passive",
+					"location": [12, 0],
+					"event": {
+						"type": "changeMap",
+						"destinationMap": "Route 1",
+						"arrivalLocation": [12, 99]
+					}
+				},
+				{
+					"type": "passive",
+					"location": [13, 0],
+					"event": {
+						"type": "changeMap",
+						"destinationMap": "Route 1",
+						"arrivalLocation": [13, 99]
+					}
+				},
+				{
+					"type": "active",
+					"location": [4, 8],
+					"facing": "north",
+					"event": {
+						"type": "dialog",
+						"speaker": null,
+						"pages": "You shouldn't read other people's mail!"
+					}
+				},
+				{
+					"type": "active",
+					"location": [13, 8],
+					"facing": "north",
+					"event": {
+						"type": "dialog",
+						"speaker": null,
+						"pages": "There's nothing in the mailbox!"
+					}
+				},
+				{
+					"type": "active",
+					"location": [16, 17],
+					"facing": "north",
+					"event": {
+						"type": "dialog",
+						"speaker": null,
+						"pages": ["Welcome to Pallet Town!", "The shades of your journey await!"]
+					}
+				}
+			]
+		}
+	]
+}

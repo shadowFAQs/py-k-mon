@@ -7,10 +7,10 @@ from color import TRANSPARENT
 
 
 class Trainer(pg.sprite.Sprite):
-    def __init__(self, location: tuple[int]):
+    def __init__(self, location: Vector2):
         pg.sprite.Sprite.__init__(self)
 
-        self.location = Vector2(location)  # 16px tile grid location
+        self.location = location  # 16px tile grid location
 
         self.action          = 'stand'
         self.facing          = 1  # Up, Down, Left, Right
@@ -38,11 +38,13 @@ class Trainer(pg.sprite.Sprite):
                 self.frame = 0
 
     def center(self) -> tuple[float]:
+        # Add 1 to Y location because trainer sprite is 2 tiles tall
         return (self.location.x * 16 + self.rect.width  / 2,
-                self.location.y * 16 - self.rect.height / 2)
+                (self.location.y - 1) * 16 - self.rect.height / 2)
 
     def coords(self) -> tuple[float]:
-        return (self.location.x * 16, self.location.y * 16)
+        # Add 1 to Y location because trainer sprite is 2 tiles tall
+        return (self.location.x * 16, (self.location.y - 1) * 16)
 
     def draw(self):
         if self.action == 'walk':

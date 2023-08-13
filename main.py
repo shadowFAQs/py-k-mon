@@ -1,9 +1,11 @@
+from math import floor
 import os
 
 import pygame as pg
 
 from area import Area
 from color import BLACK, GBA_DIMS, GRAY, TRANSPARENT
+from doodad import Doodad
 from trainer import Trainer
 
 
@@ -20,7 +22,7 @@ def get_camera_offset(area: Area,
         screen_center[1] - trainer_coords[1],
         GBA_DIMS[1] - area.dimensions()[1], 0)
 
-    return (x_from_center, y_from_center)
+    return (floor(x_from_center), floor(y_from_center))
 
 
 def get_dpad_input(dpad: list[bool]):
@@ -59,6 +61,20 @@ def handle_keyup(dpad: list[int], key: int) -> list[int]:
     return dpad
 
 
+def sort_entites_for_display(doodads: list[Doodad],
+                             trainer: Trainer) -> list:
+    # Doodads are already sorted by Y value
+    behind_trainer = [d for d in doodads if d.location.y < trainer.location.y]
+    in_front_of_trainer = [d for d in doodads \
+        if d.location.y >= trainer.location.y]
+
+    for doodad in doodads:
+        if doodad.show_in_front_of_trainer and doodad.colliding_with(trainer.rect):
+            doodad.draw_foreground_image = True
+
+    return behind_trainer + [trainer] + in_front_of_trainer
+
+
 def update_screen(screen, small_screen, area, trainer, debug):
     screen.fill(BLACK)
     small_screen.fill(GRAY)
@@ -67,14 +83,20 @@ def update_screen(screen, small_screen, area, trainer, debug):
 
     small_screen.blit(area.image, camera_offset)
 
-    for entity in [trainer]:
-        small_screen.blit(entity.image,
-                          entity.coords() + area.offset + camera_offset)
+    display_list = sort_entites_for_display(area.doodads, trainer)
 
-    location = debug.render(
-        f'{camera_offset[0]}', False, BLACK)
+    for entity in display_list:
+        x = entity.coords()[0] + camera_offset[0]
+        y = entity.coords()[1] + camera_offset[1]
+        small_screen.blit(entity.image, (x, y))
 
-    small_screen.blit(location, (180, 20))
+    for doodad in [d for d in area.doodads if d.draw_foreground_image]:
+        x = entity.coords()[0] + camera_offset[0]
+        y = entity.coords()[1] + camera_offset[1]
+        small_screen.blit(doodad.foreground_image, (x, y))
+
+    #location = debug.render(f'{camera_offset[0]}', False, BLACK)
+    #small_screen.blit(location, (180, 20))
 
     pg.transform.scale(small_screen, (pg.display.get_window_size()), screen)
     pg.display.flip()
@@ -88,7 +110,7 @@ def main():
     dpad = []
 
     area = Area('Pallet Town')
-    trainer = Trainer(location=(6, 8))
+    trainer = Trainer(location=area.start_location)
 
     debug = pg.font.Font(os.path.join('lib', 'CompaqThin.ttf'), 12)
 
