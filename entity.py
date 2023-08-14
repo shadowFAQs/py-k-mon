@@ -36,9 +36,6 @@ class Entity(pg.sprite.Sprite):
         return (self.grid_location.x * 16 + self.rect.width  / 2,
                 self.grid_location.y * 16 - self.rect.height / 2)
 
-    def colliding_with(self, rect) -> bool:
-        return self.rect.colliderect(rect)
-
     def coords(self) -> tuple[float]:
         return (self.grid_location.x * 16, self.grid_location.y * 16)
 
@@ -49,6 +46,9 @@ class Entity(pg.sprite.Sprite):
             topleft=(self.grid_location.x, self.grid_location.y))
 
         self.advance_animation()
+
+    def is_colliding_with(self, rect) -> bool:
+        return self.rect.colliderect(rect)
 
     def is_nearby(self, point: Vector2, threshold:int = 96) -> bool:
         if abs(self.grid_location.x - point.x) <= threshold:
