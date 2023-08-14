@@ -2,17 +2,55 @@
 	"areas": [
 		{
 			"name": "Pallet Town",
-			"startLocation": [15, 9],
+			"startLocation": [15, 8],
 			"doodads": [
 				{
 					"type": "house1",
 					"locations": [[5, 3], [14, 3]],
-					"showInFrontOfTrainer": true
+					"showInFrontOfTrainer": true,
+					"animated": false
+				},
+				{
+					"type": "oaks lab",
+					"locations": [[13, 9]],
+					"showInFrontOfTrainer": true,
+					"animated": false
 				},
 				{
 					"type": "tree1",
-					"locations": [[0, -1], [2, -1], [4, -1], [6, -1], [8, -1], [10, -1], [14, -1], [16, -1], [18, -1], [20, -1], [22, -1], [0, 1], [0, 3], [0, 5], [0, 7], [0, 9], [0, 11], [0, 13], [0, 15], [0, 17], [0, 19]],
-					"showInFrontOfTrainer": true
+					"locations": [[0, -1], [2, -1], [4, -1], [6, -1], [8, -1], [10, -1], [14, -1], [16, -1], [18, -1], [20, -1], [22, -1], [0, 1], [0, 3], [0, 5], [0, 7], [0, 9], [0, 11], [0, 13], [0, 15], [0, 17], [0, 19], [22, 1], [22, 3], [22, 5], [22, 7], [22, 9], [22, 11], [22, 13], [22, 15], [22, 17], [22, 19], [20, 19], [18, 19], [2, 19], [4, 19]],
+					"showInFrontOfTrainer": true,
+					"animated": false
+				},
+				{
+					"type": "mailbox",
+					"locations": [[4, 6], [13, 6]],
+					"showInFrontOfTrainer": true,
+					"animated": false
+				},
+				{
+					"type": "fence white across",
+					"locations": [[5, 11], [6, 11], [7, 11], [8, 11], [13, 16], [14, 16], [15, 16], [17, 16], [18, 16]],
+					"showInFrontOfTrainer": false,
+					"animated": false
+				},
+				{
+					"type": "sign metal",
+					"locations": [[9, 11], [16, 16]],
+					"showInFrontOfTrainer": false,
+					"animated": false
+				},
+				{
+					"type": "sign wooden",
+					"locations": [[5, 14]],
+					"showInFrontOfTrainer": false,
+					"animated": false
+				},
+				{
+					"type": "flower",
+					"locations": [[5, 12], [6, 12], [7, 12], [8, 12], [5, 13], [6, 13], [7, 13], [8, 13]],
+					"showInFrontOfTrainer": false,
+					"animated": true
 				}
 			],
 			"events": [

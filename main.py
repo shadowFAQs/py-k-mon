@@ -62,13 +62,13 @@ def handle_keyup(dpad: list[int], key: int) -> list[int]:
 
 
 def sort_entites_for_display(doodads: list[Doodad],
-                             trainer: Trainer) -> list:
+                             trainer: Trainer) -> list[Doodad|Trainer]:
     # Doodads are already sorted by Y value
     # TODO: Only blit entities that will be on the screen
     behind_trainer = [d for d in doodads \
-        if d.grid_location.y < trainer.grid_location.y]
+        if d.grid_location.y < trainer.y_coord()]
     in_front_of_trainer = [d for d in doodads \
-        if d.grid_location.y >= trainer.grid_location.y]
+        if d.grid_location.y >= trainer.y_coord()]
 
     # Only check overlaps for nearby, valid entities
     for doodad in [d for d in doodads if d.show_in_front_of_trainer]:
@@ -85,6 +85,7 @@ def update_screen(screen, small_screen, area, trainer, debug):
 
     camera_offset = get_camera_offset(area, trainer.center())
 
+    area.update()
     small_screen.blit(area.image, camera_offset)
 
     display_list = sort_entites_for_display(area.doodads, trainer)
@@ -96,12 +97,12 @@ def update_screen(screen, small_screen, area, trainer, debug):
 
     for doodad in [d for d in area.doodads if d.draw_foreground_image]:
         doodad.draw_foreground_image = False
-        x = entity.coords()[0] + camera_offset[0]
-        y = entity.coords()[1] + camera_offset[1]
+        x = doodad.coords()[0] + camera_offset[0]
+        y = doodad.coords()[1] + camera_offset[1]
         small_screen.blit(doodad.foreground_image, (x, y))
 
-    #location = debug.render(f'{camera_offset[0]}', False, BLACK)
-    #small_screen.blit(location, (180, 20))
+    # frame = debug.render(f'{trainer.frame}', False, BLACK)
+    # small_screen.blit(frame, (190, 20))
 
     pg.transform.scale(small_screen, (pg.display.get_window_size()), screen)
     pg.display.flip()
@@ -132,6 +133,7 @@ def main():
                 dpad = handle_keyup(dpad, event.key)
 
         trainer.update(area, get_dpad_input(dpad))
+        events = area.get_tile_events(trainer.grid_location)
 
         update_screen(screen, small_screen, area, trainer, debug)
 
@@ -141,3 +143,5 @@ if __name__ == '__main__':
     pg.display.set_caption('Pokemon FRLG Test')
 
     main()
+
+    # TODO: Why are there random graphics in the lower-left corner of town??

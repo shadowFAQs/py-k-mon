@@ -3,50 +3,41 @@ from pygame.math import Vector2
 
 import os
 
-from color import TRANSPARENT
+from color import BLACK, TRANSPARENT
+from entity import Entity
 
 
-class Doodad(pg.sprite.Sprite):
+class Doodad(Entity):
     def __init__(self, doodad_type: str, location: tuple[int],
-                 show_in_front_of_trainer: bool):
-        pg.sprite.Sprite.__init__(self)
+                 show_in_front_of_trainer: bool, animated: bool):
+        super().__init__(location, doodad_type)
 
-        self.grid_location            = Vector2(location)
         self.show_in_front_of_trainer = show_in_front_of_trainer
+        self.animated = animated
 
-        self.draw_foreground_image = False
+        self.draw_foreground_image    = False
+        self.entity_type              = 'doodad'
+        self.foreground_image         = None
 
-        self.load_image(doodad_type)
+        self.load_images()
+        self.draw()
+        self.set_foreground_image()
 
-    def center(self) -> tuple[float]:
-        return (self.grid_location.x * 16 + self.rect.width  / 2,
-                self.grid_location.y * 16 - self.rect.height / 2)
+    def load_images(self):
+        image = pg.image.load(
+            os.path.join('lib', self.entity_type,
+                         f'{self.formatted_name}.png'))
+        sheet_width = 16 if self.animated else image.get_width()
+        base = self.load_sheet(
+            entity_type=self.entity_type,
+            sheet_name=f'{self.formatted_name}.png',
+            sheet_width=sheet_width,
+            flip=False
+        )
+        self.images['stand'] = [base] * 4
 
-    def colliding_with(self, rect) -> bool:
-        return self.rect.colliderect(rect)
-
-    def coords(self) -> tuple[float]:
-        return (self.grid_location.x * 16, self.grid_location.y * 16)
-
-    def draw(self):
-        pass
-
-    def is_nearby(self, point: Vector2, threshold:int = 64) -> bool:
-        if abs(self.grid_location.x - point.x) <= threshold:
-            return abs(self.grid_location.y - point.y) <= threshold
-
-        return False
-
-    def load_image(self, doodad_type: str):
-        self.image = pg.image.load(os.path.join(
-                'lib', 'doodads', f'{doodad_type}.png')).convert(16)
-        self.image.set_colorkey(TRANSPARENT)
-        self.rect = self.image.get_rect()
-
+    def set_foreground_image(self):
         if self.show_in_front_of_trainer:
             self.foreground_image = pg.Surface((self.rect.width, 16))
             self.foreground_image.blit(self.image, (0, 0))
-            self.foreground_image.set_colorkey(TRANSPARENT)
-
-    def update(self):
-        self.draw()
+            self.foreground_image.set_colorkey(BLACK)

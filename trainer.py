@@ -3,76 +3,66 @@ import os
 import pygame as pg
 from pygame.math import Vector2
 
+from area import Area
 from color import TRANSPARENT
+from entity import Entity
 
 
-class Trainer(pg.sprite.Sprite):
+class Trainer(Entity):
     def __init__(self, location: Vector2):
-        pg.sprite.Sprite.__init__(self)
+        # Entity is instanciated with a Y offset
+        # of -1 because unit sprites are 2 tiles
+        # tall but "stand" on the lower one.
+        super().__init__(location + Vector2(0, -1), 'trainer')
 
-        self.grid_location = location
-
-        self.action          = 'stand'
-        self.facing          = 1  # Up, Down, Left, Right
-        self.frame           = 0
-        self.frame_delay     = 15
-        self.frame_counter   = 0
-        self.image           = None
-        self.images          = None
+        self.actions         = ['stand', 'walk']
+        self.entity_type     = 'unit'
+        self.frame_delay     = 7  # Override
         self.input_counter   = 0
         self.input_delay     = 3
-        self.rect            = None
         self.target_location = self.grid_location
         self.walk_speed      = 0.1
 
-        self.load_images('trainer')
-
-    def advance_animation(self):
-        self.frame_counter += 1
-        if self.frame_counter == self.frame_delay:
-            self.frame_delay = 0
-            self.frame_counter = 0
-            self.frame += 1
-
-            if self.frame == len(self.images[self.action][self.facing]):
-                self.frame = 0
-
-    def center(self) -> tuple[float]:
-        # Y - 1 because trainer sprite is 2 tiles tall
-        return (self.grid_location.x * 16 + self.rect.width  / 2,
-                (self.grid_location.y - 1) * 16 - self.rect.height / 2)
-
-    def coords(self) -> tuple[float]:
-        return (self.grid_location.x * 16, (self.grid_location.y - 1) * 16)
+        self.load_images()
+        self.draw()
 
     def draw(self):
         if self.action == 'walk':
             self.grid_location.move_towards_ip(
                 self.target_location, self.walk_speed)
 
-        self.image = self.images[self.action][self.facing][self.frame]
-        self.image.set_colorkey(TRANSPARENT)
-        self.rect = self.image.get_rect(
-            topleft=(self.grid_location.x, self.grid_location.y))
+        super().draw()
 
-        self.advance_animation()
-
-    def load_images(self, base_filepath: str):
-        stand_up = pg.image.load(
-            os.path.join('lib', f'{base_filepath}_up.png')).convert(16)
-        stand_down = pg.image.load(
-            os.path.join('lib', f'{base_filepath}_down.png')).convert(16)
-        stand_left = pg.image.load(
-            os.path.join('lib', f'{base_filepath}_left.png')).convert(16)
-        stand_right = pg.transform.flip(stand_left, True, False)
-
-        self.images = {
-            'stand': [[stand_up], [stand_down], [stand_left], [stand_right]],
-            'walk': [[stand_up], [stand_down], [stand_left], [stand_right]]
-        }
+    def load_images(self):
+        for action in self.actions:
+            self.images[action] = [
+                self.load_sheet(
+                    entity_type=self.entity_type,
+                    sheet_name=f'{self.formatted_name}_{action}_up.png',
+                    sheet_width=16,
+                    flip=False
+                ),
+                self.load_sheet(
+                    entity_type=self.entity_type,
+                    sheet_name=f'{self.formatted_name}_{action}_down.png',
+                    sheet_width=16,
+                    flip=False
+                ),
+                self.load_sheet(
+                    entity_type=self.entity_type,
+                    sheet_name=f'{self.formatted_name}_{action}_left.png',
+                    sheet_width=16,
+                    flip=False
+                ),
+                self.load_sheet(
+                    entity_type=self.entity_type,
+                    sheet_name=f'{self.formatted_name}_{action}_left.png',
+                    sheet_width=16,
+                    flip=True
+                )]
 
     def move(self, area):
-        self.action = 'walk'
+        self.set_action('walk')
 
         match self.facing:
             case 0:
@@ -84,12 +74,16 @@ class Trainer(pg.sprite.Sprite):
             case 3:
                 target = self.grid_location + Vector2(1, 0)
 
-        if area.is_passable(target):
+        if area.is_passable(target + Vector2(0, 1)):
             self.target_location = target
         else:
             self.target_location = self.grid_location
 
-    def set_action_from_input(self, area, direction):
+    def set_action(self, action: str):
+        self.frame_counter = 0
+        self.action = action
+
+    def set_action_from_input(self, area: Area, direction: int|None):
         if self.action == 'stand':
             if direction is None:
                 self.stop()
@@ -122,11 +116,17 @@ class Trainer(pg.sprite.Sprite):
 
     def stop(self):
         self.action = 'stand'
+        self.frame_counter = 0
+        self.frame = 0
         self.input_counter = 0
         self.target_location = self.grid_location
 
-    def update(self, area, direction=None):
+    def update(self, area: Area, direction=None):
         self.snap_location_to_grid()
         self.set_action_from_input(area, direction)
-
+        super().advance_animation()
         self.draw()
+
+    def y_coord(self) -> int:
+        # Used for determining draw order
+        return self.grid_location.y + 1
