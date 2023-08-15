@@ -18,6 +18,7 @@ class Area:
         self.image          = None
         self.map_data       = {}
         self.passable       = None
+        self.rect           = None
         self.start_location = Vector2(start_location)
 
         self.load_resources()
@@ -40,6 +41,7 @@ class Area:
     def load_base_map(self):
         self.image = pg.image.load(
             os.path.join('lib', 'maps', f'{self.formatted_name}.png'))
+        self.rect = self.image.get_rect()
 
     def load_doodads(self):
         self.doodads = []

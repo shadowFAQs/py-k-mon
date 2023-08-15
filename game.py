@@ -54,11 +54,20 @@ class Game():
         """Center the trainer on screen without
         showing anything past the area boundaries.
         """
+
         screen_center = tuple(d / 2 for d in self.gba_dimensions)
-        x_from_center = pg.math.clamp(
+
+        if self.area.rect.w <= self.gba_dimensions[0]:
+            x_from_center = (self.gba_dimensions[0] - self.area.rect.w) / 2
+        else:
+            x_from_center = pg.math.clamp(
             screen_center[0] - self.trainer.center()[0],
             self.gba_dimensions[0] - self.area.dimensions()[0], 0)
-        y_from_center = pg.math.clamp(
+
+        if self.area.rect.h <= self.gba_dimensions[1]:
+            y_from_center = (self.gba_dimensions[1] - self.area.rect.h) / 2
+        else:
+            y_from_center = pg.math.clamp(
             screen_center[1] - self.trainer.center()[1],
             self.gba_dimensions[1] - self.area.dimensions()[1], 0)
 
@@ -132,8 +141,8 @@ class Game():
             y = doodad.coords()[1] + self.camera_offset[1]
             self.gba_screen.blit(doodad.foreground_image, (x, y))
 
-        text = self.debug.render(f'Y: {self.trainer.grid_location.y}', False, BLACK)
-        self.gba_screen.blit(text, (190, 20))
+        # text = self.debug.render(f'{fits_on_screen}', False, BLACK)
+        # self.gba_screen.blit(text, (190, 20))
 
         pg.transform.scale(
             self.gba_screen, (pg.display.get_window_size()), self.screen)
