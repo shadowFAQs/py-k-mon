@@ -4,7 +4,7 @@ from math import floor
 import pygame as pg
 
 from area import Area
-from palette import BLACK, TRANSPARENT
+from palette import BLACK, GRAY, TRANSPARENT
 from controller import Controller
 from doodad import Doodad
 from trainer import Trainer
@@ -28,14 +28,13 @@ class Game():
 
     def change_map(self, new_area: str, location: tuple[int] = None):
         # TODO: Animate transition
-
-        if location:
-            self.area = Area(new_area, location)
-        else:
-            self.area = Area(new_area)
+        self.area = Area(new_area)
 
         if self.trainer:
-            self.trainer.grid_location = self.area.start_location
+            if location:
+                self.trainer.set_grid_location(location)
+            else:
+                self.trainer.set_grid_location(self.area.start_location)
 
     def execute_area_event(self, event_list: list[dict]):
         try:
@@ -122,8 +121,8 @@ class Game():
         self.update_screen()
 
     def update_screen(self):
-        self.screen.fill(BLACK)
-        self.gba_screen.fill(BLACK)
+        self.screen.fill(GRAY)
+        self.gba_screen.fill(GRAY)
         self.gba_screen.blit(self.area.image, self.camera_offset)
 
         display_list = self.sort_entites_for_display()

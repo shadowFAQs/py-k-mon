@@ -107,6 +107,9 @@ class Trainer(Entity):
                     self.facing = direction
                     self.move(area)
 
+    def set_grid_location(self, location: tuple[int] | Vector2):
+        self.grid_location = Vector2(location)
+
     def snap_location_to_grid(self):
         '''Vector2.move_towards_ip will never
         actually "complete" moving one vector to

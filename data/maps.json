@@ -193,13 +193,44 @@
 					}
 				}
 			],
-			"doodads": []
+			"doodads": [
+				{
+					"type": "potted plant",
+					"locations": [[0, 6], [11, 6]],
+					"showInFrontOfTrainer": true,
+					"animated": false
+				}
+			]
 		},
 		{
 			"name": "Heros house L2",
 			"startLocation": [9, 2],
-			"events": [],
-			"doodads": []
+			"events": [
+				{
+					"type": "passive",
+					"location": [8, 2],
+					"event": {
+						"type": "changeMap",
+						"destinationMap": "Heros house L1",
+						"arrivalLocation": [9, 2],
+						"priority": 5
+					}
+				}
+			],
+			"doodads": [
+				{
+					"type": "bed",
+					"locations": [[0, 5]],
+					"showInFrontOfTrainer": true,
+					"animated": false
+				},
+				{
+					"type": "tv",
+					"locations": [[5, 3]],
+					"showInFrontOfTrainer": true,
+					"animated": false
+				}
+			]
 		}
 	]
 }
