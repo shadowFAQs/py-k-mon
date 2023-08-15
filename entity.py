@@ -3,7 +3,7 @@ import os
 import pygame as pg
 from pygame.math import Vector2
 
-from color import TRANSPARENT
+from palette import TRANSPARENT
 
 
 class Entity(pg.sprite.Sprite):
@@ -19,6 +19,7 @@ class Entity(pg.sprite.Sprite):
         self.frame           = 0
         self.frame_counter   = 0
         self.frame_delay     = 16
+        self.grid_offset_y   = 0
         self.image           = None
         self.images          = {}
         self.rect            = None
@@ -33,8 +34,8 @@ class Entity(pg.sprite.Sprite):
                 self.frame = 0
 
     def center(self) -> tuple[float]:
-        return (self.grid_location.x * 16 + self.rect.width  / 2,
-                self.grid_location.y * 16 - self.rect.height / 2)
+        return self.grid_location.x * 16 + self.rect.width  / 2, \
+            self.grid_location.y * 16 - self.rect.height / 2
 
     def coords(self) -> tuple[float]:
         return (self.grid_location.x * 16, self.grid_location.y * 16)
@@ -43,7 +44,7 @@ class Entity(pg.sprite.Sprite):
         self.image = self.images[self.action][self.facing][self.frame]
         self.image.set_colorkey(TRANSPARENT)
         self.rect = self.image.get_rect(
-            topleft=(self.grid_location.x, self.grid_location.y))
+            topleft=(self.grid_location.x, self.grid_location.y + self.grid_offset_y))
 
         self.advance_animation()
 

@@ -4,7 +4,7 @@ from math import floor
 import pygame as pg
 
 from area import Area
-from color import BLACK, TRANSPARENT
+from palette import BLACK, TRANSPARENT
 from controller import Controller
 from doodad import Doodad
 from trainer import Trainer
@@ -22,8 +22,33 @@ class Game():
         self.running        = True
         self.screen         = pg.display.set_mode(
             tuple(n * 2 for n in self.gba_dimensions))
+        self.trainer        = None
 
         self.debug = pg.font.Font(os.path.join('lib', 'CompaqThin.ttf'), 12)
+
+    def change_map(self, new_area: str, location: tuple[int] = None):
+        # TODO: Animate transition
+
+        if location:
+            self.area = Area(new_area, location)
+        else:
+            self.area = Area(new_area)
+
+        if self.trainer:
+            self.trainer.grid_location = self.area.start_location
+
+    def execute_area_event(self, event_list: list[dict]):
+        try:
+            event = sorted(event_list, key=lambda e: e['event']['priority'])[0]
+        except IndexError:
+            return
+
+        match event['event']['type']:
+            case 'changeMap':
+                self.trainer.stop()
+                self.change_map(
+                    new_area=event['event']['destinationMap'],
+                    location=tuple(event['event']['arrivalLocation']))
 
     def get_camera_offset(self) -> tuple[float]:
         """Center the trainer on screen without
@@ -55,15 +80,15 @@ class Game():
 
     def reset_to_initial_state(self):
         self.paused = True
-        self.area = Area('Pallet Town')
+        self.change_map('Pallet Town')
         self.trainer = Trainer(location=self.area.start_location)
 
     def sort_entites_for_display(self) -> list[Doodad|Trainer]:
         # Doodads are already sorted by Y value
         behind_trainer = [d for d in self.area.doodads \
-            if d.grid_location.y < self.trainer.y_coord()]
+            if d.grid_location.y <= self.trainer.grid_location.y]
         in_front_of_trainer = [d for d in self.area.doodads \
-            if d.grid_location.y >= self.trainer.y_coord()]
+            if d.grid_location.y > self.trainer.grid_location.y]
 
         # Only check overlaps for nearby, valid entities
         for doodad in [d for d in self.area.doodads \
@@ -82,8 +107,8 @@ class Game():
         self.area.update()
         self.camera_offset = self.get_camera_offset()
 
-        events = self.area.get_tile_events(
-            self.trainer.grid_location)
+        self.execute_area_event(
+            self.area.get_tile_events(self.trainer.grid_location))
 
         self.update_screen()
 
@@ -100,14 +125,15 @@ class Game():
             self.gba_screen.blit(entity.image, (x, y))
 
         for doodad in [d for d in self.area.doodads \
-            if d.draw_foreground_image]:
+            if d.draw_foreground_image \
+            and d.grid_location.y >= self.trainer.grid_location.y]:
             doodad.draw_foreground_image = False
             x = doodad.coords()[0] + self.camera_offset[0]
             y = doodad.coords()[1] + self.camera_offset[1]
             self.gba_screen.blit(doodad.foreground_image, (x, y))
 
-        # text = debug.render(f'{trainer.frame}', False, BLACK)
-        # small_screen.blit(text, (190, 20))
+        text = self.debug.render(f'Y: {self.trainer.grid_location.y}', False, BLACK)
+        self.gba_screen.blit(text, (190, 20))
 
         pg.transform.scale(
             self.gba_screen, (pg.display.get_window_size()), self.screen)

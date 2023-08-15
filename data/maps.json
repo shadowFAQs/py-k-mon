@@ -2,7 +2,7 @@
 	"areas": [
 		{
 			"name": "Pallet Town",
-			"startLocation": [15, 8],
+			"startLocation": [6, 8],
 			"doodads": [
 				{
 					"type": "house1",
@@ -18,7 +18,7 @@
 				},
 				{
 					"type": "tree1",
-					"locations": [[0, -1], [2, -1], [4, -1], [6, -1], [8, -1], [10, -1], [14, -1], [16, -1], [18, -1], [20, -1], [22, -1], [0, 1], [0, 3], [0, 5], [0, 7], [0, 9], [0, 11], [0, 13], [0, 15], [0, 17], [0, 19], [22, 1], [22, 3], [22, 5], [22, 7], [22, 9], [22, 11], [22, 13], [22, 15], [22, 17], [22, 19], [20, 19], [18, 19], [2, 19], [4, 19]],
+					"locations": [[0, -1], [2, -1], [4, -1], [6, -1], [8, -1], [10, -1], [14, -1], [16, -1], [18, -1], [20, -1], [22, -1], [0, 1], [0, 3], [0, 5], [0, 7], [0, 9], [0, 11], [0, 13], [0, 15], [0, 17], [0, 19], [0, 21], [2, 21], [4, 21], [22, 1], [22, 3], [22, 5], [22, 7], [22, 9], [22, 11], [22, 13], [22, 15], [22, 17], [22, 19], [20, 19], [18, 19], [2, 19], [4, 19], [18, 21], [20, 21], [22, 21]],
 					"showInFrontOfTrainer": true,
 					"animated": false
 				},
@@ -29,8 +29,20 @@
 					"animated": false
 				},
 				{
-					"type": "fence white across",
-					"locations": [[5, 11], [6, 11], [7, 11], [8, 11], [13, 16], [14, 16], [15, 16], [17, 16], [18, 16]],
+					"type": "fence white horizontal",
+					"locations": [[5, 11], [6, 11], [7, 11], [8, 11], [13, 16], [14, 16], [15, 16], [17, 16], [18, 16], [11, 20], [12, 20], [13, 20], [14, 20], [15, 20], [16, 20]],
+					"showInFrontOfTrainer": false,
+					"animated": false
+				},
+				{
+					"type": "fence white corner topright",
+					"locations": [[6, 20], [17, 20]],
+					"showInFrontOfTrainer": false,
+					"animated": false
+				},
+				{
+					"type": "fence white vertical",
+					"locations": [[17, 21], [17, 22], [17, 23], [17, 24], [17, 25], [17, 26], [17, 27], [6, 21]],
 					"showInFrontOfTrainer": false,
 					"animated": false
 				},
@@ -60,7 +72,8 @@
 					"event": {
 						"type": "changeMap",
 						"destinationMap": "Route 1",
-						"arrivalLocation": [12, 99]
+						"arrivalLocation": [12, 99],
+						"priority": 5
 					}
 				},
 				{
@@ -69,17 +82,18 @@
 					"event": {
 						"type": "changeMap",
 						"destinationMap": "Route 1",
-						"arrivalLocation": [13, 99]
+						"arrivalLocation": [13, 99],
+						"priority": 5
 					}
 				},
 				{
-					"type": "active",
-					"location": [4, 8],
-					"facing": "north",
+					"type": "passive",
+					"location": [6, 7],
 					"event": {
-						"type": "dialog",
-						"speaker": null,
-						"pages": "You shouldn't read other people's mail!"
+						"type": "changeMap",
+						"destinationMap": "Heros house L1",
+						"arrivalLocation": [3, 8],
+						"priority": 5
 					}
 				},
 				{
@@ -89,7 +103,17 @@
 					"event": {
 						"type": "dialog",
 						"speaker": null,
-						"pages": "There's nothing in the mailbox!"
+						"pages": ["Gary's house", "You shouldn't read other people's mail!"]
+					}
+				},
+				{
+					"type": "active",
+					"location": [4, 8],
+					"facing": "north",
+					"event": {
+						"type": "dialog",
+						"speaker": null,
+						"pages": ["Red's house", "There's nothing in the mailbox."]
 					}
 				},
 				{
@@ -103,6 +127,79 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "Heros house L1",
+			"startLocation": [3, 8],
+			"events": [
+				{
+					"type": "passive",
+					"location": [3, 9],
+					"event": {
+						"type": "changeMap",
+						"destinationMap": "Pallet Town",
+						"arrivalLocation": [6, 8],
+						"priority": 5
+					}
+				},
+				{
+					"type": "passive",
+					"location": [10, 2],
+					"event": {
+						"type": "changeMap",
+						"destinationMap": "Heros house L2",
+						"arrivalLocation": [9, 2],
+						"priority": 5
+					}
+				},
+				{
+					"type": "active",
+					"location": [0, 2],
+					"facing": "north",
+					"event": {
+						"type": "dialog",
+						"speaker": null,
+						"pages": ["It smells delicious! Somebody's been cooking here."]
+					}
+				},
+				{
+					"type": "active",
+					"location": [1, 2],
+					"facing": "north",
+					"event": {
+						"type": "dialog",
+						"speaker": null,
+						"pages": ["It smells delicious! Somebody's been cooking here."]
+					}
+				},
+				{
+					"type": "active",
+					"location": [2, 2],
+					"facing": "north",
+					"event": {
+						"type": "dialog",
+						"speaker": null,
+						"pages": ["Dishes and plates are neatly lined up."]
+					}
+				},
+				{
+					"type": "active",
+					"location": [3, 2],
+					"facing": "north",
+					"event": {
+						"type": "dialog",
+						"speaker": null,
+						"pages": ["Dishes and plates are neatly lined up."]
+					}
+				}
+			],
+			"doodads": []
+		},
+		{
+			"name": "Heros house L2",
+			"startLocation": [9, 2],
+			"events": [],
+			"doodads": []
 		}
 	]
 }

@@ -4,12 +4,12 @@ import os
 import pygame as pg
 from pygame.math import Vector2
 
-from color import TRANSPARENT
+from palette import TRANSPARENT
 from doodad import Doodad
 
 
 class Area:
-    def __init__(self, name: str):
+    def __init__(self, name: str, start_location: tuple[int] = (0, 0)):
         self.name = name
 
         self.doodads        = []
@@ -18,15 +18,16 @@ class Area:
         self.image          = None
         self.map_data       = {}
         self.passable       = None
-        self.start_location = Vector2(0, 0)
+        self.start_location = Vector2(start_location)
 
         self.load_resources()
 
     def dimensions(self) -> tuple[int]:
         return self.image.get_size()
 
-    def get_tile_events(self, location: Vector2):
-        ...
+    def get_tile_events(self, location: Vector2) -> list[dict]:
+        return [e for e in self.events if e['type'] == 'passive' \
+            and e['location'] == location]
 
     def is_passable(self, location: Vector2):
         if location.x < 0 or location.y < 0:  # Left/top edges of the map

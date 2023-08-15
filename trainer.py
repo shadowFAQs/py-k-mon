@@ -4,7 +4,7 @@ import pygame as pg
 from pygame.math import Vector2
 
 from area import Area
-from color import TRANSPARENT
+from palette import TRANSPARENT
 from entity import Entity
 
 
@@ -13,11 +13,12 @@ class Trainer(Entity):
         # Entity is instanciated with a Y offset
         # of -1 because unit sprites are 2 tiles
         # tall but "stand" on the lower one.
-        super().__init__(location + Vector2(0, -1), 'trainer')
+        super().__init__(location, 'trainer')
 
         self.actions         = ['stand', 'walk']
         self.entity_type     = 'unit'
-        self.frame_delay     = 7  # Override
+        self.frame_delay     = 7   # Override
+        self.grid_offset_y   = -1  # Override
         self.input_counter   = 0
         self.input_delay     = 3
         self.target_location = self.grid_location
@@ -25,6 +26,10 @@ class Trainer(Entity):
 
         self.load_images()
         self.draw()
+
+    def coords(self) -> tuple[float]:
+        x, y = super().coords()
+        return x, y + self.grid_offset_y * 16
 
     def draw(self):
         if self.action == 'walk':
@@ -74,7 +79,7 @@ class Trainer(Entity):
             case 3:
                 target = self.grid_location + Vector2(1, 0)
 
-        if area.is_passable(target + Vector2(0, 1)):
+        if area.is_passable(target):
             self.target_location = target
         else:
             self.target_location = self.grid_location
@@ -126,7 +131,3 @@ class Trainer(Entity):
         self.set_action_from_input(area, direction)
         super().advance_animation()
         self.draw()
-
-    def y_coord(self) -> int:
-        # Used for determining draw order
-        return self.grid_location.y + 1

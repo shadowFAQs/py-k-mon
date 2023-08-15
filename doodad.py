@@ -3,7 +3,7 @@ from pygame.math import Vector2
 
 import os
 
-from color import BLACK, TRANSPARENT
+from palette import BLACK, TRANSPARENT
 from entity import Entity
 
 
@@ -23,6 +23,9 @@ class Doodad(Entity):
         self.draw()
         self.set_foreground_image()
 
+    def __repr__(self):
+        return f'{self.formatted_name.replace("_", " ")} @ {self.grid_location}'
+
     def load_images(self):
         image = pg.image.load(
             os.path.join('lib', self.entity_type,
@@ -38,6 +41,6 @@ class Doodad(Entity):
 
     def set_foreground_image(self):
         if self.show_in_front_of_trainer:
-            self.foreground_image = pg.Surface((self.rect.width, 16))
+            self.foreground_image = pg.Surface((self.rect.width, 32))
             self.foreground_image.blit(self.image, (0, 0))
             self.foreground_image.set_colorkey(BLACK)
