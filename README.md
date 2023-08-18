@@ -10,11 +10,9 @@ Pokémon presents a lot of interesting data structure problems. Also Gen 1 (Blue
 
 ### State of the game
 
-So far all you can do is walk around Pallet Town! But map generation, tile grids, sprites, animation, WASD controls and collision detection work, so that's a good start.
+So far all you can do is walk around Pallet Town! But map generation, tile grids, sprites, animation, WASD controls, collision detection and map transitions work.
 
-Update 15 August: Small POC for map switching -- You can now enter Hero's / Ash's / Red's house, and get up to the 2nd floor and back out to town.
-
-Next up: A pause/menu system.
+Next up: A pause/menu system. Oh, and then actual Pokémon.
 
 ### Notes
 

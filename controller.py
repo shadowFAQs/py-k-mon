@@ -7,6 +7,9 @@ class Controller():
 
         self.dpad = []
 
+    def clear_input(self):
+        self.dpad = []
+
     def get_dpad_input(self) -> int|None:
         try:
             match self.dpad[-1]:
@@ -35,5 +38,5 @@ class Controller():
         if key in [pg.K_w, pg.K_s, pg.K_a, pg.K_d]:
             try:
                 self.dpad.pop(self.dpad.index(key))
-            except IndexError:
+            except ValueError:
                 self.dpad = []

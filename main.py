@@ -13,5 +13,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    # TODO: Only blit entities that will be on the screen

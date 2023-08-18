@@ -97,6 +97,16 @@
 					}
 				},
 				{
+					"type": "passive",
+					"location": [15, 7],
+					"event": {
+						"type": "changeMap",
+						"destinationMap": "Rivals house",
+						"arrivalLocation": [4, 8],
+						"priority": 5
+					}
+				},
+				{
 					"type": "active",
 					"location": [13, 8],
 					"facing": "north",
@@ -118,12 +128,32 @@
 				},
 				{
 					"type": "active",
-					"location": [16, 17],
+					"location": [9, 11],
 					"facing": "north",
 					"event": {
 						"type": "dialog",
 						"speaker": null,
 						"pages": ["Welcome to Pallet Town!", "The shades of your journey await!"]
+					}
+				},
+				{
+					"type": "active",
+					"location": [5, 15],
+					"facing": "north",
+					"event": {
+						"type": "dialog",
+						"speaker": null,
+						"pages": ["Trainer tip: Press SPACE to open the menu."]
+					}
+				},
+				{
+					"type": "active",
+					"location": [16, 17],
+					"facing": "north",
+					"event": {
+						"type": "dialog",
+						"speaker": null,
+						"pages": ["Oak Pokémon Research Lab"]
 					}
 				}
 			]
@@ -227,6 +257,30 @@
 				{
 					"type": "tv",
 					"locations": [[5, 3]],
+					"showInFrontOfTrainer": true,
+					"animated": false
+				}
+			]
+		},
+		{
+			"name": "Rivals house",
+			"startLocation": [4, 8],
+			"events": [
+				{
+					"type": "passive",
+					"location": [4, 9],
+					"event": {
+						"type": "changeMap",
+						"destinationMap": "Pallet Town",
+						"arrivalLocation": [15, 8],
+						"priority": 5
+					}
+				}
+			],
+			"doodads": [
+				{
+					"type": "potted plant",
+					"locations": [[0, 7], [12, 7]],
 					"showInFrontOfTrainer": true,
 					"animated": false
 				}
