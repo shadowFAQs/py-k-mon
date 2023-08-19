@@ -5,9 +5,11 @@ class Controller():
     def __init__(self, style: str):
         self.style = style
 
-        self.dpad = []
+        self.buttons = []
+        self.dpad    = []
 
     def clear_input(self):
+        self.buttons = []
         self.dpad = []
 
     def get_dpad_input(self) -> int|None:
@@ -32,6 +34,8 @@ class Controller():
     def handle_keydown(self, key: int):
         if key in [pg.K_w, pg.K_s, pg.K_a, pg.K_d]:
             self.dpad.append(key)
+        elif key in [pg.K_u, pg.K_h, pg.K_SPACE]:
+            self.buttons.append(key)
 
 
     def handle_keyup(self, key: int):
@@ -40,3 +44,11 @@ class Controller():
                 self.dpad.pop(self.dpad.index(key))
             except ValueError:
                 self.dpad = []
+        if key in [pg.K_u, pg.K_h, pg.K_SPACE]:
+            try:
+                self.buttons.pop(self.buttons.index(key))
+            except ValueError:
+                self.buttons = []
+
+    def is_B_pressed(self) -> bool:
+        return pg.K_h in self.buttons

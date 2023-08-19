@@ -12,24 +12,25 @@ from trainer import Trainer
 
 class Game():
     def __init__(self):
-        self.area                = None
-        self.camera_offset       = (0, 0)
-        self.clock               = pg.time.Clock()
-        self.controller          = Controller('wasd')
-        self.gba_dimensions      = (240, 160)  # GB Advance screen dimensions
-        self.gba_screen          = pg.Surface(self.gba_dimensions)
-        self.paused              = True
-        self.running             = True
-        self.screen              = pg.display.set_mode(
+        self.area                  = None
+        self.camera_offset         = (0, 0)
+        self.clock                 = pg.time.Clock()
+        self.controller            = Controller('wasd')
+        self.gba_dimensions        = (240, 160)  # GB Advance dimensions
+        self.gba_screen            = pg.Surface(self.gba_dimensions)
+        self.paused                = True
+        self.running               = True
+        self.screen                = pg.display.set_mode(
             tuple(n * 2 for n in self.gba_dimensions))
-        self.state               = 'loop'
-        self.take_new_snapshot   = False
-        self.trainer             = None
-        self.transition          = pg.Surface(self.gba_dimensions)
+        self.state                 = 'loop'
+        self.take_new_snapshot     = False
+        self.target_framerate      = 30
+        self.trainer               = None
+        self.transition            = pg.Surface(self.gba_dimensions)
         self.transition_alpha_step = 30
-        self.transition_counter  = 0
-        self.transition_max      = 20
-        self.transition_snapshot = pg.Surface(self.gba_dimensions)
+        self.transition_counter    = 0
+        self.transition_max        = 20
+        self.transition_snapshot   = pg.Surface(self.gba_dimensions)
 
         self.debug = pg.font.Font(os.path.join('lib', 'CompaqThin.ttf'), 12)
 
@@ -74,9 +75,8 @@ class Game():
             y = doodad.coords()[1] + self.camera_offset[1]
             self.gba_screen.blit(doodad.foreground_image, (x, y))
 
-    def fade_out_and_in(self, color=BLACK):
-        self.state = 'fade_out'
-        self.transition.fill(color)
+    def execute_active_event(self):
+        ...
 
     def execute_area_event(self, event_list: list[dict]):
         try:
@@ -91,6 +91,10 @@ class Game():
                 self.change_map(
                     new_area=event['event']['destinationMap'],
                     location=tuple(event['event']['arrivalLocation']))
+
+    def fade_out_and_in(self, color=BLACK):
+        self.state = 'fade_out'
+        self.transition.fill(color)
 
     def get_camera_offset(self) -> tuple[float]:
         """Center the trainer on screen without
@@ -117,7 +121,7 @@ class Game():
 
     def loop(self):
         while self.running:
-            self.clock.tick(30)
+            self.clock.tick(self.target_framerate)
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -168,13 +172,18 @@ class Game():
     def update(self):
         self.trainer.update(
             area=self.area,
-            direction=self.controller.get_dpad_input())
+            direction=self.controller.get_dpad_input(),
+            B_pressed=self.controller.is_B_pressed()
+        )
 
         self.area.update()
         self.camera_offset = self.get_camera_offset()
 
         self.execute_area_event(
             self.area.get_tile_events(self.trainer.grid_location))
+
+        if self.controller.is_B_pressed():
+            self.execute_active_event()
 
         self.update_screen()
 

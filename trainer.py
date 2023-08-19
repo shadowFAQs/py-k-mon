@@ -15,7 +15,7 @@ class Trainer(Entity):
         # tall but "stand" on the lower one.
         super().__init__(location, 'trainer')
 
-        self.actions         = ['stand', 'walk']
+        self.actions         = ['stand', 'run', 'walk']
         self.entity_type     = 'unit'
         self.frame_delay     = 7   # Override
         self.grid_offset_y   = -1  # Override
@@ -33,8 +33,13 @@ class Trainer(Entity):
 
     def draw(self):
         if self.action == 'walk':
+            self.frame_delay = 7
             self.grid_location.move_towards_ip(
                 self.target_location, self.walk_speed)
+        elif self.action == 'run':
+            self.frame_delay = 4
+            self.grid_location.move_towards_ip(
+                self.target_location, self.walk_speed * 2)
 
         super().draw()
 
@@ -66,8 +71,8 @@ class Trainer(Entity):
                     flip=True
                 )]
 
-    def move(self, area):
-        self.set_action('walk')
+    def move(self, area: Area, B_pressed: bool):
+        self.set_action('run' if B_pressed else 'walk')
 
         match self.facing:
             case 0:
@@ -88,7 +93,8 @@ class Trainer(Entity):
         self.frame_counter = 0
         self.action = action
 
-    def set_action_from_input(self, area: Area, direction: int|None):
+    def set_action_from_input(self, area: Area, direction: int|None,
+                              B_pressed: bool):
         if self.action == 'stand':
             if direction is None:
                 self.stop()
@@ -97,15 +103,15 @@ class Trainer(Entity):
 
                 self.input_counter += 1
                 if self.input_counter == self.input_delay:
-                    self.move(area)
+                    self.move(area, B_pressed)
 
-        elif self.action == 'walk':
+        elif self.action in ['run', 'walk']:
             if self.grid_location == self.target_location:
                 if direction is None:
                     self.stop()
                 else:
                     self.facing = direction
-                    self.move(area)
+                    self.move(area, B_pressed)
 
     def set_grid_location(self, location: tuple[int] | Vector2):
         self.grid_location = Vector2(location)
@@ -129,8 +135,8 @@ class Trainer(Entity):
         self.input_counter = 0
         self.target_location = self.grid_location
 
-    def update(self, area: Area, direction=None):
+    def update(self, area: Area, direction=None, B_pressed=False):
         self.snap_location_to_grid()
-        self.set_action_from_input(area, direction)
+        self.set_action_from_input(area, direction, B_pressed)
         super().advance_animation()
         self.draw()

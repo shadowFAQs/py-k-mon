@@ -10,9 +10,26 @@ Pokémon presents a lot of interesting data structure problems. Also Gen 1 (Blue
 
 ### State of the game
 
-So far all you can do is walk around Pallet Town! But map generation, tile grids, sprites, animation, WASD controls, collision detection and map transitions work.
+So far all you can do is walk around Pallet Town! But it's a good proof-of-concept.
 
-Next up: A pause/menu system. Oh, and then actual Pokémon.
+**Currently working:**
+- Map generation, sprite sheets, tile grids & animation
+- WASD controls (U = "B" button; H = "A" button; SPACE = "Start")
+- Walking and running
+- Grid based movement with collision detection
+- Map transitions
+- "Passive" map events (e.g. entering a house or a new area)
+
+**Next up:**
+- Dialog modals
+- "Active" map events, like reading a sign or picking up an item
+- A pause/menu system
+- Tall grass encounters
+- Battle system
+- A map editor
+- Pokédex
+- Pokéballs and capturing wild Pokémon
+- NPCs
 
 ### Notes
 

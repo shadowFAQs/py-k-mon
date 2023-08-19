@@ -107,6 +107,16 @@
 					}
 				},
 				{
+					"type": "passive",
+					"location": [16, 13],
+					"event": {
+						"type": "changeMap",
+						"destinationMap": "Oaks lab",
+						"arrivalLocation": [6, 12],
+						"priority": 5
+					}
+				},
+				{
 					"type": "active",
 					"location": [13, 8],
 					"facing": "north",
@@ -281,6 +291,54 @@
 				{
 					"type": "potted plant",
 					"locations": [[0, 7], [12, 7]],
+					"showInFrontOfTrainer": true,
+					"animated": false
+				}
+			]
+		},
+		{
+			"name": "Oaks lab",
+			"startLocation": [6, 12],
+			"events": [
+				{
+					"type": "passive",
+					"location": [6, 13],
+					"event": {
+						"type": "changeMap",
+						"destinationMap": "Pallet Town",
+						"arrivalLocation": [16, 14],
+						"priority": 5
+					}
+				}
+			],
+			"doodads": [
+				{
+					"type": "potted plant",
+					"locations": [[0, 11], [12, 11]],
+					"showInFrontOfTrainer": true,
+					"animated": false
+				},
+				{
+					"type": "bookshelf left",
+					"locations": [[0, 7]],
+					"showInFrontOfTrainer": true,
+					"animated": false
+				},
+				{
+					"type": "bookshelf center",
+					"locations": [[1, 7], [3, 7], [8, 7], [10, 7]],
+					"showInFrontOfTrainer": true,
+					"animated": false
+				},
+				{
+					"type": "bookshelf right",
+					"locations": [[12, 7]],
+					"showInFrontOfTrainer": true,
+					"animated": false
+				},
+				{
+					"type": "machine1",
+					"locations": [[1, 3]],
 					"showInFrontOfTrainer": true,
 					"animated": false
 				}
