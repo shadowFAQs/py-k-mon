@@ -136,7 +136,7 @@
 				},
 				{
 					"type": "active",
-					"location": [9, 11],
+					"location": [9, 12],
 					"facing": 0,
 					"event": {
 						"type": "begin dialog",

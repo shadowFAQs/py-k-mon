@@ -20,7 +20,7 @@ So far all you can do is walk around Pallet Town! But it's a good proof-of-conce
 - Map transitions
 - "Passive" map events (e.g. entering a house or a stepping on a warp tile)
 - "Active" map events, like reading a sign or picking up an item
-- Dialog modals (although they're still a bit clunky)
+- Dialog modals
 
 **Next up:**
 - A pause/menu system

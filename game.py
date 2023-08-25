@@ -6,6 +6,7 @@ import pygame as pg
 from area import Area
 from palette import BLACK, GRAY, TRANSPARENT
 from controller import Controller
+from dialog import Dialog
 from doodad import Doodad
 from trainer import Trainer
 
@@ -17,22 +18,10 @@ class Game():
         self.clock                  = pg.time.Clock()
         self.controller             = Controller('wasd')
         self.dialog                 = None
-        self.dialog_box             = None
-        self.dialog_box_offset      = (5, 106)
-        self.dialog_chars_offset    = (13, 10)
-        self.dialog_chars_per_line  = 29
-        self.dialog_continue_button = None
-        self.dialog_frame_counter   = 0
-        self.dialog_letter          = 0
-        self.dialog_letter_objs     = []
-        self.dialog_frame_max       = 2
-        self.dialog_page            = 0
-        self.dialog_pages           = []
         self.font                   = None
-        self.font_letter_w          = 6
-        self.font_letter_h          = 12
         self.gba_dimensions         = (240, 160)  # GB Advance screen
         self.gba_screen             = pg.Surface(self.gba_dimensions)
+        self.ignore_dpad_input      = False
         self.next_A_action          = ''
         self.paused                 = True
         self.running                = True
@@ -52,37 +41,6 @@ class Game():
 
         self.load_menu_resources()
 
-    def animate_dialog(self):
-        if self.state == 'dialog':
-            if not self.dialog_letter_objs:
-                self.dialog_letter_objs = self.render_text(
-                    self.dialog_pages[self.dialog_page])
-                self.dialog.fill(TRANSPARENT)
-                self.dialog.blit(self.dialog_box, (0, 0))
-
-            self.dialog_frame_counter += 1
-            if self.dialog_frame_counter == self.dialog_frame_max:
-                self.dialog_frame_counter = 0
-                self.dialog_letter += 1
-
-            if self.dialog_letter == len(self.dialog_pages[self.dialog_page]):
-                self.dialog_frame_counter = 0
-                if self.dialog_page < len(self.dialog_pages) - 1:
-                    self.state = 'next page'
-                else:
-                    self.state = 'exit dialog'
-            else:
-                try:
-                    letter = self.dialog_letter_objs[self.dialog_letter]
-                    self.dialog.blit(
-                        letter['surface'],
-                        (self.dialog_chars_offset[0] + letter['x'],
-                         letter['y'] + self.dialog_chars_offset[1])
-                    )
-                    self.dialog.set_colorkey(TRANSPARENT)
-                except IndexError:
-                    pass
-
     def animate_transition(self):
         if self.state == 'fade_out':
             self.transition_counter += 1
@@ -97,10 +55,12 @@ class Game():
                 self.state = 'loop'
 
     def begin_dialog(self):
+        self.ignore_dpad_input = True
         events = self.area.get_tile_events(location=self.trainer.grid_location,
                                            active=True)
         event = [e for e in events if e['facing'] == self.trainer.facing][0]
-        self.display_dialog(event['event']['pages'])
+        self.dialog = Dialog(event['event']['pages'], self.font)
+        self.dialog.display()
 
     def change_map(self, new_area: str, location: tuple[int] = None,
                    fade=True):
@@ -122,10 +82,6 @@ class Game():
         if self.next_A_action:
             method = getattr(self, self.next_A_action.replace(' ', '_'))
             method()
-
-    def display_dialog(self, pages: list[str]):
-        self.state = 'dialog'
-        self.dialog_pages = pages
 
     def draw_area(self):
         self.gba_screen.blit(self.area.image, self.camera_offset)
@@ -156,11 +112,8 @@ class Game():
 
     def exit_dialog(self):
         self.state = 'loop'
-        self.dialog_frame_counter = 0
-        self.dialog_letter = 0
-        self.dialog_letter_objs = []
-        self.dialog_page = 0
-        self.dialog_pages = []
+        self.dialog = None
+        self.ignore_dpad_input = False
 
     def fade_out_and_in(self, color=BLACK):
         self.state = 'fade_out'
@@ -189,18 +142,8 @@ class Game():
         return (floor(x_from_center), floor(y_from_center))
 
     def load_menu_resources(self):
-        self.dialog_box = pg.image.load(
-            os.path.join('lib', 'menu', 'dialog.png'))
-        self.dialog_box.set_colorkey(TRANSPARENT)
-
-        self.dialog = pg.Surface(self.dialog_box.get_size())
-
         self.font = pg.image.load(
             os.path.join('lib', 'menu', 'pk_font.png'))
-
-        self.dialog_continue_button = pg.image.load(
-            os.path.join('lib', 'menu', 'continue_button.png'))
-        self.dialog_continue_button.set_colorkey(TRANSPARENT)
 
     def loop(self):
         while self.running:
@@ -210,7 +153,7 @@ class Game():
                 if event.type == pg.QUIT:
                     self.running = False
                 else:
-                    if self.state in ['loop', 'next page', 'exit dialog']:
+                    if self.state == 'loop':
                         if event.type == pg.KEYDOWN:
                             self.controller.handle_keydown(event.key)
                         elif event.type == pg.KEYUP:
@@ -222,77 +165,31 @@ class Game():
             self.update()
             self.animate_transition()
 
-            if self.state in ['dialog', 'next page', 'exit dialog']:
-                self.animate_dialog()
-
     def next_page(self):
-        self.dialog_letter = 0
-        self.dialog_page += 1
-        self.state = 'dialog'
-        self.dialog_letter_objs = []
-
-    def render_text(self, text: str) -> dict:
-        from string import ascii_lowercase, ascii_uppercase
-        rows = [ascii_uppercase, ascii_lowercase,
-                '0123456789,.#!?#\'""-/##é ']
-
-        words = text.split(' ')
-        line0 = []
-        line_length_exceeded = False
-        while words and not line_length_exceeded:
-            line0.append(words.pop(0))
-            if words:
-                line_length_exceeded = len(' '.join(line0 + [words[0]])) \
-                    > self.dialog_chars_per_line
-
-        letters = []
-        for l, line in enumerate([line0, words]):
-            current_pos = 0
-
-            for char in ' '.join(line):
-                letter = {
-                    'surface': pg.Surface(
-                        (self.font_letter_w, self.font_letter_h))
-                }
-                letter['surface'].set_colorkey(TRANSPARENT)
-
-                for n, row in enumerate(rows):
-                    if char in row:
-                        offset = -n * self.font_letter_h
-                        letter['surface'].blit(
-                            self.font,
-                            (row.index(char) * -self.font_letter_w,
-                             offset)
-                        )
-                        letter['x'] = current_pos * (self.font_letter_w + 1)
-                        letter['y'] = l * self.font_letter_h
-                        letters.append(letter)
-                        break
-
-                current_pos += 1
-
-        return letters
+        self.dialog.next_page()
 
     def reset_to_initial_state(self):
         self.paused = True
         self.change_map('Pallet Town', fade=False)
         self.trainer = Trainer(location=self.area.start_location)
 
-    def set_next_A_action(self):
-        match self.state:
-            case 'loop':
-                map_events = self.area.get_tile_events(
-                    location=self.trainer.grid_location, active=True)
-                try:
-                    self.next_A_action = [e['event']['type'] \
-                        for e in map_events \
-                        if e['facing'] == self.trainer.facing][0]
-                except IndexError:
-                    self.next_A_action = ''
-            case 'exit dialog':
-                self.next_A_action = 'exit dialog'
-            case 'next page':
-                self.next_A_action = 'next page'
+    def set_next_A_action(self, action=''):
+        if action:
+            self.next_A_action = action
+            return
+
+        if self.state == 'loop':
+            map_events = self.area.get_tile_events(
+                location=self.trainer.grid_location, active=True)
+            try:
+                self.next_A_action = [e['event']['type'] \
+                    for e in map_events \
+                    if e['facing'] == self.trainer.facing][0]
+            except IndexError:
+                self.next_A_action = ''
+
+    def skip_dialog(self):
+        self.dialog.skip()
 
     def sort_and_draw_entities(self):
         # TODO: Only blit entities that will be on the screen
@@ -320,9 +217,11 @@ class Game():
         return behind_trainer + [self.trainer] + in_front_of_trainer
 
     def update(self):
+        trainer_direction = self.controller.get_dpad_input() \
+            if not self.ignore_dpad_input else None
         self.trainer.update(
             area=self.area,
-            direction=self.controller.get_dpad_input(),
+            direction=trainer_direction,
             B_pressed=self.controller.is_B_down()
         )
 
@@ -334,7 +233,17 @@ class Game():
                 self.area.get_tile_events(location=self.trainer.grid_location,
                                           active=False))
 
-        self.set_next_A_action()
+        if self.dialog:
+            self.dialog.update()
+            if self.dialog.state == 'next':
+                self.set_next_A_action('next page')
+            elif self.dialog.state == 'exit':
+                self.set_next_A_action('exit dialog')
+            else:
+                self.set_next_A_action('skip dialog')
+        else:
+            self.set_next_A_action()
+
         if self.controller.A_pressed():
             self.do_next_A_action()
 
@@ -370,20 +279,11 @@ class Game():
             self.draw_doodads()
 
             text = self.debug.render(
-                f'{self.state}', False, BLACK)
+                f'{self.trainer.grid_location}', False, BLACK)
             self.gba_screen.blit(text, (190, 20))
 
-        if self.state in ['dialog', 'next page', 'exit dialog']:
-            self.gba_screen.blit(self.dialog, self.dialog_box_offset)
-
-        if self.state == 'next page':
-            # Place "continue" button
-            position = (
-                self.dialog_letter_objs[-1]['x'] + self.dialog_box_offset[0] \
-                    + self.dialog_chars_offset[0] + 10,
-                self.dialog_letter_objs[-1]['y'] + self.dialog_box_offset[1] \
-                    + self.dialog_chars_offset[1])
-            self.gba_screen.blit(self.dialog_continue_button, position)
+        if self.dialog:
+            self.gba_screen.blit(self.dialog.image, self.dialog.box_offset)
 
         self.upsize_and_display_screen()
 
@@ -392,3 +292,6 @@ class Game():
         pg.transform.scale(self.gba_screen,
                            (pg.display.get_window_size()), self.screen)
         pg.display.flip()
+
+    # TODO:
+        # Handle player input during fade transitions (holding d-pad button starts walking once new area has loaded)
