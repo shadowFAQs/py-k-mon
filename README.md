@@ -2,7 +2,7 @@
 
 It's **Pokémon Fire Red** but completely built from scratch in Pygame!
 
-![pallet_town](https://github.com/shadowFAQs/py-k-mon/assets/36905164/62af765b-d594-4a21-ac36-23ce38bf5c60)
+![pallet_town_2](https://github.com/shadowFAQs/py-k-mon/assets/36905164/543799ed-3b21-4d6d-9906-4b9741fc8df8)
 
 ### Why though?
 
