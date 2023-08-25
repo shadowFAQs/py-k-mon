@@ -8,6 +8,7 @@ from palette import BLACK, GRAY, TRANSPARENT
 from controller import Controller
 from dialog import Dialog
 from doodad import Doodad
+from helpers import colorkeyed_surface_from_file
 from trainer import Trainer
 
 
@@ -38,6 +39,12 @@ class Game():
         self.transition_snapshot    = pg.Surface(self.gba_dimensions)
 
         self.debug = pg.font.Font(os.path.join('lib', 'CompaqThin.ttf'), 12)
+        self.btn_a = colorkeyed_surface_from_file('demo', 'a_btn.png')
+        self.btn_a_pressed = colorkeyed_surface_from_file(
+            'demo', 'a_btn_pressed.png')
+        self.btn_b = colorkeyed_surface_from_file('demo', 'b_btn.png')
+        self.btn_b_pressed = colorkeyed_surface_from_file(
+            'demo', 'b_btn_pressed.png')
 
         self.load_menu_resources()
 
@@ -278,9 +285,16 @@ class Game():
             self.sort_and_draw_entities()
             self.draw_doodads()
 
+            # Debug stuff
+            a = self.btn_a_pressed if self.controller.is_A_down() \
+                else self.btn_a
+            b = self.btn_b_pressed if self.controller.is_B_down() \
+                else self.btn_b
+            self.gba_screen.blit(a, (204 + 18, 12))
+            self.gba_screen.blit(b, (204 + 4, 16))
             text = self.debug.render(
                 f'{self.trainer.grid_location}', False, BLACK)
-            self.gba_screen.blit(text, (190, 20))
+            self.gba_screen.blit(text, (20, 12))
 
         if self.dialog:
             self.gba_screen.blit(self.dialog.image, self.dialog.box_offset)
