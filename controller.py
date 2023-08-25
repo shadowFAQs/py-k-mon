@@ -71,6 +71,17 @@ class Controller():
     def is_B_down(self) -> bool:
         return pg.K_h in self.buttons
 
+    def poll(self):
+        """Manually poll controller keys"""
+        # Dpad
+        for key in [pg.K_w, pg.K_s, pg.K_a, pg.K_d]:
+            if pg.key.get_pressed()[key]:
+                self.dpad.append(key)
+        # Buttons
+        for key in [pg.K_u, pg.K_h, pg.K_SPACE]:
+            if pg.key.get_pressed()[key]:
+                self.buttons.append(key)
+
     def update(self):
         self.A_flag = False
         self.B_flag = False

@@ -12,7 +12,7 @@ class Trainer(Entity):
     def __init__(self, location: Vector2):
         # Entity is instanciated with a Y offset
         # of -1 because unit sprites are 2 tiles
-        # tall but "stand" on the lower one.
+        # tall but "stand on" the lower one.
         super().__init__(location, 'trainer')
 
         self.actions         = ['stand', 'run', 'walk']
@@ -71,8 +71,8 @@ class Trainer(Entity):
                     flip=True
                 )]
 
-    def move(self, area: Area, B_pressed: bool):
-        self.set_action('run' if B_pressed else 'walk')
+    def move(self, area: Area, B_pressed: bool, run_enabled: bool):
+        self.set_action('run' if B_pressed and run_enabled else 'walk')
 
         match self.facing:
             case 0:
@@ -94,7 +94,7 @@ class Trainer(Entity):
         self.action = action
 
     def set_action_from_input(self, area: Area, direction: int|None,
-                              B_pressed: bool):
+                              B_pressed: bool, run_enabled: bool):
         if self.action == 'stand':
             if direction is None:
                 self.stop()
@@ -103,7 +103,7 @@ class Trainer(Entity):
 
                 self.input_counter += 1
                 if self.input_counter == self.input_delay:
-                    self.move(area, B_pressed)
+                    self.move(area, B_pressed, run_enabled)
 
         elif self.action in ['run', 'walk']:
             if self.grid_location == self.target_location:
@@ -111,7 +111,7 @@ class Trainer(Entity):
                     self.stop()
                 else:
                     self.facing = direction
-                    self.move(area, B_pressed)
+                    self.move(area, B_pressed, run_enabled)
 
     def set_grid_location(self, location: tuple[int] | Vector2):
         self.grid_location = Vector2(location)
@@ -135,8 +135,9 @@ class Trainer(Entity):
         self.input_counter = 0
         self.target_location = self.grid_location
 
-    def update(self, area: Area, direction=None, B_pressed=False):
+    def update(self, area: Area, direction: int|None=None,
+               B_pressed: bool=False, run_enabled: bool=True):
         self.snap_location_to_grid()
-        self.set_action_from_input(area, direction, B_pressed)
+        self.set_action_from_input(area, direction, B_pressed, run_enabled)
         super().advance_animation()
         self.draw()

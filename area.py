@@ -19,6 +19,7 @@ class Area:
         self.map_data       = {}
         self.passable       = None
         self.rect           = None
+        self.run_enabled    = True
         self.start_location = Vector2(start_location)
 
         self.load_resources()
@@ -40,6 +41,9 @@ class Area:
             return bool(self.passable[int(location.x)][int(location.y)])
         except IndexError:
             return False
+
+    def is_running_allowed(self):
+        return self.run_enabled
 
     def load_base_map(self):
         self.image = pg.image.load(
@@ -74,6 +78,7 @@ class Area:
         self.load_events()
 
         self.start_location = Vector2(self.map_data['startLocation'])
+        self.run_enabled = self.map_data['allowRunning']
 
         # Boolean 2D array, such that each (x, y) is passable (1) or not (0)
         filename = f'{self.formatted_name}_passable.png'

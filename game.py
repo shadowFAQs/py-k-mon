@@ -60,6 +60,7 @@ class Game():
             self.transition_counter -= 1
             if self.transition_counter == 0:
                 self.state = 'loop'
+                self.controller.poll()
 
     def begin_dialog(self):
         self.ignore_dpad_input = True
@@ -229,7 +230,8 @@ class Game():
         self.trainer.update(
             area=self.area,
             direction=trainer_direction,
-            B_pressed=self.controller.is_B_down()
+            B_pressed=self.controller.is_B_down(),
+            run_enabled=self.area.is_running_allowed()
         )
 
         self.area.update()
@@ -306,6 +308,3 @@ class Game():
         pg.transform.scale(self.gba_screen,
                            (pg.display.get_window_size()), self.screen)
         pg.display.flip()
-
-    # TODO:
-        # Handle player input during fade transitions (holding d-pad button starts walking once new area has loaded)
