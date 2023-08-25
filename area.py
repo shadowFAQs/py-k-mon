@@ -26,9 +26,12 @@ class Area:
     def dimensions(self) -> tuple[int]:
         return self.image.get_size()
 
-    def get_tile_events(self, location: Vector2) -> list[dict]:
-        return [e for e in self.events if e['type'] == 'passive' \
-            and e['location'] == location]
+    def get_tile_events(self, location: Vector2, active: bool) -> list[dict]:
+        events = [e for e in self.events if e['location'] == location]
+        if active:
+            return [e for e in events if e['type'] == 'active']
+        else:
+            return [e for e in events if e['type'] == 'passive']
 
     def is_passable(self, location: Vector2):
         if location.x < 0 or location.y < 0:  # Left/top edges of the map

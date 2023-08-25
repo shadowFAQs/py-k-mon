@@ -18,17 +18,17 @@ So far all you can do is walk around Pallet Town! But it's a good proof-of-conce
 - Walking and running
 - Grid based movement with collision detection
 - Map transitions
-- "Passive" map events (e.g. entering a house or a new area)
+- "Passive" map events (e.g. entering a house or a stepping on a warp tile)
+- "Active" map events, like reading a sign or picking up an item
+- Dialog modals (although they're still a bit clunky)
 
 **Next up:**
-- Dialog modals
-- "Active" map events, like reading a sign or picking up an item
 - A pause/menu system
-- Tall grass encounters
 - Battle system
-- A map editor
 - Pokédex
+- Tall grass encounters
 - Pokéballs and capturing wild Pokémon
+- A map editor
 - NPCs
 
 ### Notes

@@ -119,50 +119,45 @@
 				{
 					"type": "active",
 					"location": [13, 8],
-					"facing": "north",
+					"facing": 0,
 					"event": {
-						"type": "dialog",
-						"speaker": null,
+						"type": "begin dialog",
 						"pages": ["Gary's house", "You shouldn't read other people's mail!"]
 					}
 				},
 				{
 					"type": "active",
 					"location": [4, 8],
-					"facing": "north",
+					"facing": 0,
 					"event": {
-						"type": "dialog",
-						"speaker": null,
+						"type": "begin dialog",
 						"pages": ["Red's house", "There's nothing in the mailbox."]
 					}
 				},
 				{
 					"type": "active",
 					"location": [9, 11],
-					"facing": "north",
+					"facing": 0,
 					"event": {
-						"type": "dialog",
-						"speaker": null,
+						"type": "begin dialog",
 						"pages": ["Welcome to Pallet Town!", "The shades of your journey await!"]
 					}
 				},
 				{
 					"type": "active",
 					"location": [5, 15],
-					"facing": "north",
+					"facing": 0,
 					"event": {
-						"type": "dialog",
-						"speaker": null,
+						"type": "begin dialog",
 						"pages": ["Trainer tip: Press SPACE to open the menu."]
 					}
 				},
 				{
 					"type": "active",
 					"location": [16, 17],
-					"facing": "north",
+					"facing": 0,
 					"event": {
-						"type": "dialog",
-						"speaker": null,
+						"type": "begin dialog",
 						"pages": ["Oak Pokémon Research Lab"]
 					}
 				}
@@ -195,40 +190,36 @@
 				{
 					"type": "active",
 					"location": [0, 2],
-					"facing": "north",
+					"facing": 0,
 					"event": {
-						"type": "dialog",
-						"speaker": null,
+						"type": "begin dialog",
 						"pages": ["It smells delicious! Somebody's been cooking here."]
 					}
 				},
 				{
 					"type": "active",
 					"location": [1, 2],
-					"facing": "north",
+					"facing": 0,
 					"event": {
-						"type": "dialog",
-						"speaker": null,
+						"type": "begin dialog",
 						"pages": ["It smells delicious! Somebody's been cooking here."]
 					}
 				},
 				{
 					"type": "active",
 					"location": [2, 2],
-					"facing": "north",
+					"facing": 0,
 					"event": {
-						"type": "dialog",
-						"speaker": null,
+						"type": "begin dialog",
 						"pages": ["Dishes and plates are neatly lined up."]
 					}
 				},
 				{
 					"type": "active",
 					"location": [3, 2],
-					"facing": "north",
+					"facing": 0,
 					"event": {
-						"type": "dialog",
-						"speaker": null,
+						"type": "begin dialog",
 						"pages": ["Dishes and plates are neatly lined up."]
 					}
 				}

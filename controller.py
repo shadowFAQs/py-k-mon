@@ -3,14 +3,24 @@ import pygame as pg
 
 class Controller():
     def __init__(self, style: str):
-        self.style = style
+        self.style = style  # WASD, arrows
 
+        self.A_flag  = False  # These flags are for capturing initial
+        self.B_flag  = False  # presses only.
         self.buttons = []
         self.dpad    = []
 
-    def clear_input(self):
+    def A_pressed(self) -> bool:
+        return self.A_flag
+
+    def clear_buttons(self):
         self.buttons = []
+        self.A_flag = False
+        self.B_flag = False
+
+    def clear_input(self):
         self.dpad = []
+        self.clear_buttons()
 
     def get_dpad_input(self) -> int|None:
         try:
@@ -37,6 +47,11 @@ class Controller():
         elif key in [pg.K_u, pg.K_h, pg.K_SPACE]:
             self.buttons.append(key)
 
+            match key:
+                case pg.K_u:
+                    self.A_flag = True
+                case pg.K_h:
+                    self.B_flag = True
 
     def handle_keyup(self, key: int):
         if key in [pg.K_w, pg.K_s, pg.K_a, pg.K_d]:
@@ -48,7 +63,14 @@ class Controller():
             try:
                 self.buttons.pop(self.buttons.index(key))
             except ValueError:
-                self.buttons = []
+                self.clear_buttons()
 
-    def is_B_pressed(self) -> bool:
+    def is_A_down(self) -> bool:
+        return pg.K_u in self.buttons
+
+    def is_B_down(self) -> bool:
         return pg.K_h in self.buttons
+
+    def update(self):
+        self.A_flag = False
+        self.B_flag = False
