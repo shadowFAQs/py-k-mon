@@ -34,3 +34,5 @@ So far all you can do is walk around Pallet Town! But it's a good proof-of-conce
 ### Notes
 
 Py-k-mon was built and tested with Pygame 2.5.1, Python 3.10, and Ubuntu 22.04.3. Thanks to [Spriters Resource](https://www.spriters-resource.com/game_boy_advance/pokemonfireredleafgreen/) for the images!
+
+Requires [pygame](https://pypi.org/project/pygame/) and [numpy](https://pypi.org/project/numpy/).
