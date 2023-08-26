@@ -336,5 +336,3 @@ class Game():
         pg.transform.scale(self.gba_screen,
                            (pg.display.get_window_size()), self.screen)
         pg.display.flip()
-
-        # TODO: Refactor controller to use button classes

@@ -22,8 +22,10 @@ So far all you can do is walk around Pallet Town! But it's a good proof-of-conce
 - "Active" map events, like reading a sign or picking up an item
 - Dialog modals
 
-**Next up:**
+**In development**
 - A pause/menu system
+
+**Next up:**
 - Battle system
 - Pokédex
 - Tall grass encounters
