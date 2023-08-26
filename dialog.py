@@ -1,5 +1,4 @@
 import os
-from string import ascii_lowercase, ascii_uppercase
 
 import pygame as pg
 
@@ -31,7 +30,8 @@ class Dialog():
     def animate(self):
         if self.state == 'typewriter':
             if not self.letter_objs:
-                self.letter_objs = self.render_text(self.pages[self.page])
+                self.letter_objs = self.render_dialog_text(
+                    self.pages[self.page])
                 self.image.fill(TRANSPARENT)
                 self.image.blit(self.box, (0, 0))
 
@@ -71,10 +71,7 @@ class Dialog():
         self.letter_objs = []
         self.state = 'typewriter'
 
-    def render_text(self, text: str) -> dict:
-        rows = [ascii_uppercase, ascii_lowercase,
-                '0123456789,.#!?#\'""-/##é ']
-
+    def render_dialog_text(self, text: str) -> dict:
         words = text.replace(':', '-').split(' ')
         line0 = []
         line_length_exceeded = False
@@ -94,11 +91,11 @@ class Dialog():
                         (self.letter_w, self.letter_h))
                 }
 
-                for n, row in enumerate(rows):
+                for n, row in enumerate(self.font.text_rows):
                     if char in row:
                         offset = -n * self.letter_h
                         letter['surface'].blit(
-                            self.font,
+                            self.font.image,
                             (row.index(char) * -self.letter_w, offset)
                         )
                         letter['x'] = current_pos * (self.letter_w + 1)
@@ -133,3 +130,4 @@ class Dialog():
                  self.letter_objs[-1]['y'] + self.chars_offset[1]))
 
         self.animate()
+

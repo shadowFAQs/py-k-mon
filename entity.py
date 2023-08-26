@@ -10,19 +10,19 @@ class Entity(pg.sprite.Sprite):
     def __init__(self, location: Vector2, entity_name: str):
         pg.sprite.Sprite.__init__(self)
 
-        self.grid_location   = Vector2(location)
-        self.formatted_name  = entity_name.lower().replace(' ', '_')
+        self.grid_location  = Vector2(location)
+        self.formatted_name = entity_name.lower().replace(' ', '_')
 
-        self.action          = 'stand'
-        self.actions         = ['stand']
-        self.facing          = 1  # Up, Down, Left, Right
-        self.frame           = 0
-        self.frame_counter   = 0
-        self.frame_delay     = 16
-        self.grid_offset_y   = 0
-        self.image           = None
-        self.images          = {}
-        self.rect            = None
+        self.action         = 'stand'
+        self.actions        = ['stand']
+        self.facing         = 1  # Up, Down, Left, Right
+        self.frame          = 0
+        self.frame_counter  = 0
+        self.frame_delay    = 16
+        self.grid_offset_y  = 0
+        self.image          = None
+        self.images         = {}
+        self.rect           = None
 
     def advance_animation(self):
         self.frame_counter += 1

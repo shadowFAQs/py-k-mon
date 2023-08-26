@@ -8,7 +8,9 @@ from palette import BLACK, GRAY, TRANSPARENT
 from controller import Controller
 from dialog import Dialog
 from doodad import Doodad
+from font import Font
 from helpers import colorkeyed_surface_from_file
+from menu import Overworld_Sidebar
 from trainer import Trainer
 
 
@@ -24,6 +26,7 @@ class Game():
         self.gba_screen             = pg.Surface(self.gba_dimensions)
         self.ignore_dpad_input      = False
         self.next_A_action          = ''
+        self.menus                  = []
         self.paused                 = True
         self.running                = True
         self.screen                 = pg.display.set_mode(
@@ -84,7 +87,12 @@ class Game():
                 self.trainer.set_grid_location(self.area.start_location)
 
     def clear_input(self):
-        self.controller.clear_input()
+        self.controller.reset()
+
+    def close_current_menu(self):
+        self.menus.pop(-1)
+        if not self.menus:
+            self.state = 'loop'
 
     def do_next_A_action(self):
         if self.next_A_action:
@@ -150,8 +158,7 @@ class Game():
         return (floor(x_from_center), floor(y_from_center))
 
     def load_menu_resources(self):
-        self.font = pg.image.load(
-            os.path.join('lib', 'menu', 'pk_font.png'))
+        self.font = Font()
 
     def loop(self):
         while self.running:
@@ -161,7 +168,9 @@ class Game():
                 if event.type == pg.QUIT:
                     self.running = False
                 else:
-                    if self.state == 'loop':
+                    if self.state == 'loading':
+                        self.state = 'loop'
+                    elif self.state in ['loop', 'menu']:
                         if event.type == pg.KEYDOWN:
                             self.controller.handle_keydown(event.key)
                         elif event.type == pg.KEYUP:
@@ -177,6 +186,7 @@ class Game():
         self.dialog.next_page()
 
     def reset_to_initial_state(self):
+        self.state = 'loading'
         self.paused = True
         self.change_map('Pallet Town', fade=False)
         self.trainer = Trainer(location=self.area.start_location)
@@ -195,6 +205,10 @@ class Game():
                     if e['facing'] == self.trainer.facing][0]
             except IndexError:
                 self.next_A_action = ''
+
+    def show_menu(self):
+        self.state = 'menu'
+        self.menus.append(Overworld_Sidebar())
 
     def skip_dialog(self):
         self.dialog.skip()
@@ -225,22 +239,26 @@ class Game():
         return behind_trainer + [self.trainer] + in_front_of_trainer
 
     def update(self):
-        trainer_direction = self.controller.get_dpad_input() \
-            if not self.ignore_dpad_input else None
-        self.trainer.update(
-            area=self.area,
-            direction=trainer_direction,
-            B_pressed=self.controller.is_B_down(),
-            run_enabled=self.area.is_running_allowed()
-        )
-
-        self.area.update()
-        self.camera_offset = self.get_camera_offset()
-
         if self.state == 'loop':
+            trainer_direction = self.controller.get_dpad_input() \
+                if not self.ignore_dpad_input else None
+            self.trainer.update(
+                area=self.area,
+                direction=trainer_direction,
+                B_pressed=self.controller.button('B').is_down,
+                run_enabled=self.area.is_running_allowed()
+            )
+
+            self.area.update()
+
             self.execute_area_event(
                 self.area.get_tile_events(location=self.trainer.grid_location,
                                           active=False))
+
+            if self.controller.button('START').flag:
+                self.show_menu()
+
+        self.camera_offset = self.get_camera_offset()
 
         if self.dialog:
             self.dialog.update()
@@ -250,10 +268,17 @@ class Game():
                 self.set_next_A_action('exit dialog')
             else:
                 self.set_next_A_action('skip dialog')
+        elif self.menus:
+            top_menu = self.menus[-1]
+            action, arg = top_menu.get_action_from_input(
+                self.controller.get_flags())
+            if action:
+                action(arg)
+            top_menu.update()
         else:
             self.set_next_A_action()
 
-        if self.controller.A_pressed():
+        if self.controller.button('A').flag:
             self.do_next_A_action()
 
         self.update_screen()
@@ -287,19 +312,22 @@ class Game():
             self.sort_and_draw_entities()
             self.draw_doodads()
 
-            # Debug stuff
-            a = self.btn_a_pressed if self.controller.is_A_down() \
-                else self.btn_a
-            b = self.btn_b_pressed if self.controller.is_B_down() \
-                else self.btn_b
-            self.gba_screen.blit(a, (204 + 18, 12))
-            self.gba_screen.blit(b, (204 + 4, 16))
-            text = self.debug.render(
-                f'{self.trainer.grid_location}', False, BLACK)
-            self.gba_screen.blit(text, (20, 12))
-
         if self.dialog:
             self.gba_screen.blit(self.dialog.image, self.dialog.box_offset)
+
+        for menu in self.menus:
+            self.gba_screen.blit(menu.image, menu.coords)
+
+        # Debug stuff
+        a = self.btn_a_pressed if self.controller.button('A').is_down \
+            else self.btn_a
+        b = self.btn_b_pressed if self.controller.button('B').is_down \
+            else self.btn_b
+        self.gba_screen.blit(a, (204 + 18, 12))
+        self.gba_screen.blit(b, (204 + 4, 16))
+        text = self.debug.render(
+            f'{self.trainer.grid_location}', False, BLACK)
+        self.gba_screen.blit(text, (20, 12))
 
         self.upsize_and_display_screen()
 
@@ -308,3 +336,5 @@ class Game():
         pg.transform.scale(self.gba_screen,
                            (pg.display.get_window_size()), self.screen)
         pg.display.flip()
+
+        # TODO: Refactor controller to use button classes

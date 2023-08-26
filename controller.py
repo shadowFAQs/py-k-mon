@@ -1,87 +1,97 @@
 import pygame as pg
 
 
+class Button():
+    def __init__(self, name: str, binding: int, dpad: bool=False):
+        self.binding = binding
+        self.dpad    = dpad
+        self.name    = name
+
+        self.flag    = False  # Fires once on press
+        self.is_down = False
+
+    def as_int(self) -> int:
+        if not self.dpad:
+            raise RuntimeError(
+                f'Button "{self.name}" cannot be interpreted as an int')
+        return ['UP', 'DOWN', 'LEFT', 'RIGHT'].index(self.name)
+
+    def press(self):
+        self.flag = True
+        self.is_down = True
+
+    def release(self):
+        self.flag = False
+        self.is_down = False
+
+    def update(self):
+        self.flag = False
+
+
 class Controller():
     def __init__(self, style: str):
         self.style = style  # WASD, arrows
 
-        self.A_flag  = False  # These flags are for capturing initial
-        self.B_flag  = False  # presses only.
         self.buttons = []
-        self.dpad    = []
+        self.set_buttons_from_style()
 
-    def A_pressed(self) -> bool:
-        return self.A_flag
+    def button(self, name: str) -> Button:
+        return next(b for b in self.buttons if b.name == name)
 
-    def clear_buttons(self):
-        self.buttons = []
-        self.A_flag = False
-        self.B_flag = False
-
-    def clear_input(self):
-        self.dpad = []
-        self.clear_buttons()
+    def get_dpad(self) -> list[Button]:
+        return [b for b in self.buttons if b.dpad]
 
     def get_dpad_input(self) -> int|None:
         try:
-            match self.dpad[-1]:
-                case pg.K_w:
-                    if not pg.K_s in self.dpad:
-                        return 0
-                case pg.K_s:
-                    if not pg.K_w in self.dpad:
-                        return 1
-                case pg.K_a:
-                    if not pg.K_d in self.dpad:
-                        return 2
-                case pg.K_d:
-                    if not pg.K_a in self.dpad:
-                        return 3
-        except IndexError:
+            return next(b for b in self.get_dpad() if b.is_down).as_int()
+        except StopIteration:
             return None
 
+    def get_flags(self) -> list[Button]:
+        return [b for b in self.buttons if b.flag]
+
+    def get_pressed(self) -> list[Button]:
+        return [b for b in self.buttons if b.is_down]
 
     def handle_keydown(self, key: int):
-        if key in [pg.K_w, pg.K_s, pg.K_a, pg.K_d]:
-            self.dpad.append(key)
-        elif key in [pg.K_u, pg.K_h, pg.K_SPACE]:
-            self.buttons.append(key)
-
-            match key:
-                case pg.K_u:
-                    self.A_flag = True
-                case pg.K_h:
-                    self.B_flag = True
+        try:
+            button = next(b for b in self.buttons if b.binding == key)
+            button.press()
+        except StopIteration:
+            pass
 
     def handle_keyup(self, key: int):
-        if key in [pg.K_w, pg.K_s, pg.K_a, pg.K_d]:
-            try:
-                self.dpad.pop(self.dpad.index(key))
-            except ValueError:
-                self.dpad = []
-        if key in [pg.K_u, pg.K_h, pg.K_SPACE]:
-            try:
-                self.buttons.pop(self.buttons.index(key))
-            except ValueError:
-                self.clear_buttons()
-
-    def is_A_down(self) -> bool:
-        return pg.K_u in self.buttons
-
-    def is_B_down(self) -> bool:
-        return pg.K_h in self.buttons
+        try:
+            button = next(b for b in self.buttons if b.binding == key)
+            button.release()
+        except StopIteration:
+            pass
 
     def poll(self):
         """Manually poll controller keys"""
-        # Dpad
-        for key in [pg.K_w, pg.K_s, pg.K_a, pg.K_d]:
-            if pg.key.get_pressed()[key]:
-                self.dpad.append(key)
-        # Buttons
-        for key in [pg.K_u, pg.K_h, pg.K_SPACE]:
-            if pg.key.get_pressed()[key]:
-                self.buttons.append(key)
+        for button in self.buttons:
+            if pg.key.get_pressed()[button.binding]:
+                button.is_down = True
+
+    def reset(self):
+        for btn in self.buttons:
+            btn.release()
+
+    def set_buttons_from_style(self):
+        match self.style:
+            case 'wasd':
+                buttons = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+                bindings = [pg.K_w, pg.K_s, pg.K_a, pg.K_d]
+                for n in range(len(buttons)):
+                    self.buttons.append(Button(
+                        name=buttons[n], binding=bindings[n], dpad=True))
+
+                buttons = ['A', 'B', 'START']
+                bindings = [pg.K_u, pg.K_h, pg.K_SPACE]
+                for n in range(len(buttons)):
+                    self.buttons.append(Button(
+                        name=buttons[n], binding=bindings[n]))
 
     def update(self):
-        self.A_flag = False
-        self.B_flag = False
+        for button in self.buttons:
+            button.update()
