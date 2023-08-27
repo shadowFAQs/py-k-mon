@@ -72,6 +72,24 @@ class Entity(pg.sprite.Sprite):
 
         return frames
 
+    def turn(self, direction: str|int):
+        """Set facing direction, either by
+        direction name or int value.
+        """
+        if type(direction) == int:
+            self.facing = direction
+            return
+
+        match direction:
+            case 'up':
+                self.facing = 0
+            case 'down':
+                self.facing = 1
+            case 'down':
+                self.facing = 2
+            case 'right':
+                self.facing = 3
+
     def update(self):
         self.advance_animation()
         self.draw()

@@ -134,6 +134,7 @@ class Trainer(Entity):
         self.frame = 0
         self.input_counter = 0
         self.target_location = self.grid_location
+        self.draw()
 
     def update(self, area: Area, direction: int|None=None,
                B_pressed: bool=False, run_enabled: bool=True):

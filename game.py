@@ -35,11 +35,9 @@ class Game():
         self.take_new_snapshot      = False
         self.target_framerate       = 30
         self.trainer                = None
-        self.transition             = pg.Surface(self.gba_dimensions)
-        self.transition_alpha_step  = 30
         self.transition_counter     = 0
+        self.transition_frames      = []
         self.transition_max         = 20
-        self.transition_snapshot    = pg.Surface(self.gba_dimensions)
 
         self.debug = pg.font.Font(os.path.join('lib', 'CompaqThin.ttf'), 12)
         self.btn_a = colorkeyed_surface_from_file('demo', 'a_btn.png')
@@ -73,11 +71,7 @@ class Game():
         self.dialog = Dialog(event['event']['pages'], self.font)
         self.dialog.display()
 
-    def change_map(self, new_area: str, location: tuple[int] = None,
-                   fade=True):
-        if fade:
-            self.transition_snapshot.blit(self.gba_screen, (0, 0))
-
+    def change_map(self, new_area: str, location: tuple[int] = None):
         self.area = Area(new_area)
 
         if self.trainer:
@@ -90,9 +84,38 @@ class Game():
         self.controller.reset()
 
     def close_current_menu(self):
+        # TODO: Probably handle this differently
         self.menus.pop(-1)
         if not self.menus:
             self.state = 'loop'
+
+    def create_transition(self, new_area: Area, style: str='fade to black'):
+        snapshot = self.gba_screen.copy()
+
+        match style:
+            case 'fade to black':
+                # Fade out
+                blackout = pg.Surface(self.gba_dimensions)
+                blackout.fill(BLACK)
+                alpha_step = 255 / self.transition_max
+
+                for n in range(self.transition_max):
+                    frame = pg.Surface(self.gba_dimensions)
+                    frame.blit(snapshot, (0, 0))
+                    blackout.set_alpha(alpha_step * n)
+                    frame.blit(blackout, (0, 0))
+                    self.transition_frames.append(frame)
+
+                # Fade in
+                snapshot = self.render_area_snapshot(new_area)
+                snapshot.set_alpha(0)
+
+                for n in range(self.transition_max):
+                    frame = pg.Surface(self.gba_dimensions)
+                    frame.fill(BLACK)
+                    snapshot.set_alpha(alpha_step * n)
+                    frame.blit(snapshot, (0, 0))
+                    self.transition_frames.append(frame)
 
     def do_next_A_action(self):
         if self.next_A_action:
@@ -120,8 +143,11 @@ class Game():
 
         match event['event']['type']:
             case 'changeMap':
-                self.fade_out_and_in()
+                self.state = 'transition'
                 self.trainer.stop()
+                self.controller.reset()
+                self.create_transition(
+                    new_area=event['event']['destinationMap'])
                 self.change_map(
                     new_area=event['event']['destinationMap'],
                     location=tuple(event['event']['arrivalLocation']))
@@ -131,29 +157,26 @@ class Game():
         self.dialog = None
         self.ignore_dpad_input = False
 
-    def fade_out_and_in(self, color=BLACK):
-        self.state = 'fade_out'
-        self.transition.fill(color)
-
-    def get_camera_offset(self) -> tuple[float]:
+    def get_camera_offset(
+        self, area: Area, trainer_center: tuple[float]) -> tuple[float]:
         """Center the trainer on screen without
         showing anything past the area boundaries.
         """
         screen_center = tuple(d / 2 for d in self.gba_dimensions)
 
-        if self.area.rect.w <= self.gba_dimensions[0]:
-            x_from_center = (self.gba_dimensions[0] - self.area.rect.w) / 2
+        if area.rect.w <= self.gba_dimensions[0]:
+            x_from_center = (self.gba_dimensions[0] - area.rect.w) / 2
         else:
             x_from_center = pg.math.clamp(
-            screen_center[0] - self.trainer.center()[0],
-            self.gba_dimensions[0] - self.area.dimensions()[0], 0)
+                screen_center[0] - trainer_center[0],
+                self.gba_dimensions[0] - area.dimensions()[0], 0)
 
-        if self.area.rect.h <= self.gba_dimensions[1]:
-            y_from_center = (self.gba_dimensions[1] - self.area.rect.h) / 2
+        if area.rect.h <= self.gba_dimensions[1]:
+            y_from_center = (self.gba_dimensions[1] - area.rect.h) / 2
         else:
             y_from_center = pg.math.clamp(
-            screen_center[1] - self.trainer.center()[1],
-            self.gba_dimensions[1] - self.area.dimensions()[1], 0)
+                screen_center[1] - trainer_center[1],
+                self.gba_dimensions[1] - area.dimensions()[1], 0)
 
         return (floor(x_from_center), floor(y_from_center))
 
@@ -185,10 +208,38 @@ class Game():
     def next_page(self):
         self.dialog.next_page()
 
+    def preview_entities(
+        self, area: Area, trainer: Trainer,
+        surface: pg.Surface, camera_offset: tuple[float]) -> pg.Surface:
+        """Draws a preview of an area's entities
+        onto [surface]. Used for transitions.
+        """
+        for entity in area.doodads + [trainer]:
+            x = entity.coords()[0] + camera_offset[0]
+            y = entity.coords()[1] + camera_offset[1]
+            surface.blit(entity.image, (x, y))
+
+        return surface
+
+    def render_area_snapshot(self, area_name: str) -> pg.Surface:
+        area = Area(area_name)
+        trainer = Trainer(location=area.start_location)
+        trainer.turn(self.trainer.facing)
+        trainer.draw()
+        camera_offset = self.get_camera_offset(area, trainer.center())
+
+        snapshot = pg.Surface(self.gba_dimensions)
+        snapshot.fill(GRAY)
+        snapshot.blit(area.image, camera_offset)
+        snapshot = self.preview_entities(
+            area, trainer, snapshot, camera_offset)
+
+        return snapshot
+
     def reset_to_initial_state(self):
         self.state = 'loading'
         self.paused = True
-        self.change_map('Pallet Town', fade=False)
+        self.change_map('Pallet Town')
         self.trainer = Trainer(location=self.area.start_location)
 
     def set_next_A_action(self, action=''):
@@ -258,7 +309,8 @@ class Game():
             if self.controller.button('START').flag:
                 self.show_menu()
 
-        self.camera_offset = self.get_camera_offset()
+        self.camera_offset = self.get_camera_offset(
+            self.area, self.trainer.center())
 
         if self.dialog:
             self.dialog.update()
@@ -288,35 +340,23 @@ class Game():
     def update_screen(self):
         self.gba_screen.fill(GRAY)
 
-        if self.state == 'fade_out':
-            self.transition.set_alpha(self.transition_alpha_step)
-            self.transition_snapshot.blit(self.transition, (0, 0))
-            self.gba_screen.blit(self.transition_snapshot, (0, 0))
-            self.gba_screen.blit(self.transition, (0, 0))
-        elif self.state == 'fade_in':
-            if self.take_new_snapshot:
-                self.take_new_snapshot = False
-                self.draw_area()
-                self.sort_and_draw_entities()
-                self.draw_doodads()
-                self.transition_snapshot.blit(self.gba_screen, (0, 0))
+        if self.state == 'transition':
+            try:
+                self.gba_screen.blit(self.transition_frames.pop(0), (0, 0))
+            except IndexError:
+                self.state = 'loop'
+                self.controller.poll()
 
-            self.transition.set_alpha(255)
-            self.gba_screen.blit(self.transition, (0, 0))
-            self.transition_snapshot.set_alpha(
-                self.transition_snapshot.get_alpha() \
-                + self.transition_alpha_step)
-            self.gba_screen.blit(self.transition_snapshot, (0, 0))
-        else:
+        if self.state == 'loop':
             self.draw_area()
             self.sort_and_draw_entities()
             self.draw_doodads()
 
-        if self.dialog:
-            self.gba_screen.blit(self.dialog.image, self.dialog.box_offset)
+            if self.dialog:
+                self.gba_screen.blit(self.dialog.image, self.dialog.box_offset)
 
-        for menu in self.menus:
-            self.gba_screen.blit(menu.image, menu.coords)
+            for menu in self.menus:
+                self.gba_screen.blit(menu.image, menu.coords)
 
         # Debug stuff
         a = self.btn_a_pressed if self.controller.button('A').is_down \
