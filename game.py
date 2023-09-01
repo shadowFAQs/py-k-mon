@@ -83,6 +83,10 @@ class Game():
     def clear_input(self):
         self.controller.reset()
 
+    def close_all_menus(self):
+        self.menus = []
+        self.state = 'loop'
+
     def close_current_menu(self):
         # TODO: Probably handle this differently
         self.menus.pop(-1)
@@ -320,13 +324,17 @@ class Game():
                 self.set_next_A_action('exit dialog')
             else:
                 self.set_next_A_action('skip dialog')
+
         elif self.menus:
             top_menu = self.menus[-1]
             action, arg = top_menu.get_action_from_input(
                 self.controller.get_flags())
             if action:
-                action(arg)
+                game_action = action(arg)
+                if game_action:
+                    getattr(self, game_action)()
             top_menu.update()
+
         else:
             self.set_next_A_action()
 
@@ -348,15 +356,16 @@ class Game():
                 self.controller.poll()
 
         if self.state == 'loop':
+            if self.dialog:
+                self.gba_screen.blit(self.dialog.image, self.dialog.box_offset)
+
+        if self.state in ['loop', 'menu']:
             self.draw_area()
             self.sort_and_draw_entities()
             self.draw_doodads()
 
-            if self.dialog:
-                self.gba_screen.blit(self.dialog.image, self.dialog.box_offset)
-
-            for menu in self.menus:
-                self.gba_screen.blit(menu.image, menu.coords)
+        for menu in self.menus:
+            self.gba_screen.blit(menu.image, menu.coords)
 
         # Debug stuff
         a = self.btn_a_pressed if self.controller.button('A').is_down \

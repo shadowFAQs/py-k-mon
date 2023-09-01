@@ -17,6 +17,7 @@ class Menu(pg.sprite.Sprite):
         self.cursor_position = 0
         self.cursor_type     = ''
         self.font            = Font()
+        self.item_labels     = []
         self.items           = []
         self.name            = ''
         self.open            = False
@@ -28,7 +29,7 @@ class Menu(pg.sprite.Sprite):
 
     def close(self, arg):
         if self.open:  # Prevent immediate firing when menu is first opened
-            print('Menu.close()')
+            return 'close_all_menus'
 
     def draw(self):
         self.image.fill(TRANSPARENT)
@@ -86,7 +87,7 @@ class Menu(pg.sprite.Sprite):
         )
 
     def select(self, arg):
-        print('Menu.select()')
+        print(f'Selected {self.item_labels[self.cursor_position]}')
 
     def update(self):
         if not self.open:     # Prevent immediate firing of close() when menu
@@ -99,10 +100,12 @@ class Overworld_Sidebar(Menu):
     def __init__(self):
         super().__init__()
 
-        self.name            = 'overworld_sidebar'
         self.coords          = (159, 1)
         self.cursor_type     = 'row'
         self.cursor_offset   = (8, 8)
+        self.item_labels     = ['POKéDEX', 'POKéMON', 'BAG', 'ASH', 'SAVE',
+                                'OPTION', 'EXIT']
+        self.name            = 'overworld_sidebar'
         self.row_height      = 14
         self.text_offset     = (8, 14)
 
@@ -110,8 +113,7 @@ class Overworld_Sidebar(Menu):
         self.set_items()
 
     def set_items(self):
-        for row, item in enumerate(['POKéDEX', 'POKéMON', 'BAG', 'ASH', 'SAVE',
-                                    'OPTION', 'EXIT']):
+        for row, item in enumerate(self.item_labels):
             self.items.append(
                 dict(
                     image=self.font.render_text(item),
