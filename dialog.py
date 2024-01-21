@@ -5,6 +5,7 @@ import pygame as pg
 from helpers import colorkeyed_surface, colorkeyed_surface_from_file
 from palette import TRANSPARENT
 
+
 class Dialog():
     def __init__(self, pages, font):
         self.font            = font
@@ -30,8 +31,7 @@ class Dialog():
     def animate(self):
         if self.state == 'typewriter':
             if not self.letter_objs:
-                self.letter_objs = self.render_dialog_text(
-                    self.pages[self.page])
+                self.letter_objs = self.render_dialog_text(self.pages[self.page])
                 self.image.fill(TRANSPARENT)
                 self.image.blit(self.box, (0, 0))
 
@@ -48,11 +48,8 @@ class Dialog():
     def blit_next_letter(self):
         try:
             letter = self.letter_objs[self.letter]
-            self.image.blit(
-                letter['surface'],
-                (self.chars_offset[0] + letter['x'],
-                 letter['y'] + self.chars_offset[1])
-            )
+            self.image.blit(letter['surface'],
+                            (self.chars_offset[0] + letter['x'], letter['y'] + self.chars_offset[1]))
         except IndexError:
             pass
 
@@ -61,8 +58,7 @@ class Dialog():
 
     def load_resources(self):
         self.box = colorkeyed_surface_from_file('lib', 'menu', 'dialog.png')
-        self.continue_button = colorkeyed_surface_from_file(
-            'lib', 'menu', 'continue_button.png')
+        self.continue_button = colorkeyed_surface_from_file('lib', 'menu', 'continue_button.png')
         self.image = colorkeyed_surface(self.box.get_size(), fill=True)
 
     def next_page(self):
@@ -78,26 +74,19 @@ class Dialog():
         while words and not line_length_exceeded:
             line0.append(words.pop(0))
             if words:
-                line_length_exceeded = len(' '.join(line0 + [words[0]])) \
-                    > self.chars_per_line
+                line_length_exceeded = len(' '.join(line0 + [words[0]])) > self.chars_per_line
 
         letters = []
         for l, line in enumerate([line0, words]):
             current_pos = 0
 
             for char in ' '.join(line):
-                letter = {
-                    'surface': colorkeyed_surface(
-                        (self.letter_w, self.letter_h))
-                }
+                letter = {'surface': colorkeyed_surface((self.letter_w, self.letter_h))}
 
                 for n, row in enumerate(self.font.text_rows):
                     if char in row:
                         offset = -n * self.letter_h
-                        letter['surface'].blit(
-                            self.font.image,
-                            (row.index(char) * -self.letter_w, offset)
-                        )
+                        letter['surface'].blit(self.font.image, (row.index(char) * -self.letter_w, offset))
                         letter['x'] = current_pos * (self.letter_w + 1)
                         letter['y'] = l * self.letter_h
                         letters.append(letter)

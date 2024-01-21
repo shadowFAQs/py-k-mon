@@ -15,16 +15,14 @@ class Font():
     def render_text(self, text: str) -> pg.Surface:
         letter_w, letter_h = 6, 12
         text = text.replace(':', '-')
-        surface = colorkeyed_surface(
-            ((letter_w + 1) * len(text), letter_h), fill=True)
+        surface = colorkeyed_surface(((letter_w + 1) * len(text), letter_h), fill=True)
 
         for pos, char in enumerate(text):
             letter = pg.Surface((letter_w, letter_h))
             for n, row in enumerate(self.text_rows):
                 if char in row:
                     offset = -n * letter_h
-                    letter.blit(self.image,
-                                (row.index(char) * -letter_w, offset))
+                    letter.blit(self.image, (row.index(char) * -letter_w, offset))
                     surface.blit(letter, (pos * (letter_w + 1), 0))
 
         return surface

@@ -34,42 +34,24 @@ class Trainer(Entity):
     def draw(self):
         if self.action == 'walk':
             self.frame_delay = 7
-            self.grid_location.move_towards_ip(
-                self.target_location, self.walk_speed)
+            self.grid_location.move_towards_ip(self.target_location, self.walk_speed)
         elif self.action == 'run':
             self.frame_delay = 4
-            self.grid_location.move_towards_ip(
-                self.target_location, self.walk_speed * 2)
+            self.grid_location.move_towards_ip(self.target_location, self.walk_speed * 2)
 
         super().draw()
 
     def load_images(self):
         for action in self.actions:
             self.images[action] = [
-                self.load_sheet(
-                    entity_type=self.entity_type,
-                    sheet_name=f'{self.formatted_name}_{action}_up.png',
-                    sheet_width=16,
-                    flip=False
-                ),
-                self.load_sheet(
-                    entity_type=self.entity_type,
-                    sheet_name=f'{self.formatted_name}_{action}_down.png',
-                    sheet_width=16,
-                    flip=False
-                ),
-                self.load_sheet(
-                    entity_type=self.entity_type,
-                    sheet_name=f'{self.formatted_name}_{action}_left.png',
-                    sheet_width=16,
-                    flip=False
-                ),
-                self.load_sheet(
-                    entity_type=self.entity_type,
-                    sheet_name=f'{self.formatted_name}_{action}_left.png',
-                    sheet_width=16,
-                    flip=True
-                )]
+                self.load_sheet(entity_type=self.entity_type, sheet_name=f'{self.formatted_name}_{action}_up.png',
+                                sheet_width=16, flip=False),
+                self.load_sheet(entity_type=self.entity_type, sheet_name=f'{self.formatted_name}_{action}_down.png',
+                                sheet_width=16, flip=False),
+                self.load_sheet(entity_type=self.entity_type, sheet_name=f'{self.formatted_name}_{action}_left.png',
+                                sheet_width=16, flip=False),
+                self.load_sheet(entity_type=self.entity_type, sheet_name=f'{self.formatted_name}_{action}_left.png',
+                                sheet_width=16, flip=True)]
 
     def move(self, area: Area, B_pressed: bool, run_enabled: bool):
         self.set_action('run' if B_pressed and run_enabled else 'walk')
@@ -93,8 +75,7 @@ class Trainer(Entity):
         self.frame_counter = 0
         self.action = action
 
-    def set_action_from_input(self, area: Area, direction: int|None,
-                              B_pressed: bool, run_enabled: bool):
+    def set_action_from_input(self, area: Area, direction: int|None, B_pressed: bool, run_enabled: bool):
         if self.action == 'stand':
             if direction is None:
                 self.stop()
@@ -136,8 +117,7 @@ class Trainer(Entity):
         self.target_location = self.grid_location
         self.draw()
 
-    def update(self, area: Area, direction: int|None=None,
-               B_pressed: bool=False, run_enabled: bool=True):
+    def update(self, area: Area, direction: int|None=None, B_pressed: bool=False, run_enabled: bool=True):
         self.snap_location_to_grid()
         self.set_action_from_input(area, direction, B_pressed, run_enabled)
         super().advance_animation()

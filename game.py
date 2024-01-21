@@ -29,8 +29,7 @@ class Game():
         self.menus                  = []
         self.paused                 = True
         self.running                = True
-        self.screen                 = pg.display.set_mode(
-            tuple(n * 2 for n in self.gba_dimensions))
+        self.screen                 = pg.display.set_mode(tuple(n * 2 for n in self.gba_dimensions))
         self.state                  = 'loop'
         self.take_new_snapshot      = False
         self.target_framerate       = 30
@@ -41,11 +40,9 @@ class Game():
 
         self.debug = pg.font.Font(os.path.join('lib', 'CompaqThin.ttf'), 12)
         self.btn_a = colorkeyed_surface_from_file('demo', 'a_btn.png')
-        self.btn_a_pressed = colorkeyed_surface_from_file(
-            'demo', 'a_btn_pressed.png')
+        self.btn_a_pressed = colorkeyed_surface_from_file('demo', 'a_btn_pressed.png')
         self.btn_b = colorkeyed_surface_from_file('demo', 'b_btn.png')
-        self.btn_b_pressed = colorkeyed_surface_from_file(
-            'demo', 'b_btn_pressed.png')
+        self.btn_b_pressed = colorkeyed_surface_from_file('demo', 'b_btn_pressed.png')
 
         self.load_menu_resources()
 
@@ -65,8 +62,7 @@ class Game():
 
     def begin_dialog(self):
         self.ignore_dpad_input = True
-        events = self.area.get_tile_events(location=self.trainer.grid_location,
-                                           active=True)
+        events = self.area.get_tile_events(location=self.trainer.grid_location, active=True)
         event = [e for e in events if e['facing'] == self.trainer.facing][0]
         self.dialog = Dialog(event['event']['pages'], self.font)
         self.dialog.display()
@@ -130,8 +126,7 @@ class Game():
         self.gba_screen.blit(self.area.image, self.camera_offset)
 
     def draw_doodads(self):
-        for doodad in [d for d in self.area.doodads \
-            if d.draw_foreground_image \
+        for doodad in [d for d in self.area.doodads if d.draw_foreground_image \
             and d.grid_location.y >= self.trainer.grid_location.y]:
             doodad.draw_foreground_image = False
             x = doodad.coords()[0] + self.camera_offset[0]
@@ -150,19 +145,16 @@ class Game():
                 self.state = 'transition'
                 self.trainer.stop()
                 self.controller.reset()
-                self.create_transition(
-                    new_area=event['event']['destinationMap'])
-                self.change_map(
-                    new_area=event['event']['destinationMap'],
-                    location=tuple(event['event']['arrivalLocation']))
+                self.create_transition(new_area=event['event']['destinationMap'])
+                self.change_map(new_area=event['event']['destinationMap'],
+                                location=tuple(event['event']['arrivalLocation']))
 
     def exit_dialog(self):
         self.state = 'loop'
         self.dialog = None
         self.ignore_dpad_input = False
 
-    def get_camera_offset(
-        self, area: Area, trainer_center: tuple[float]) -> tuple[float]:
+    def get_camera_offset(self, area: Area, trainer_center: tuple[float]) -> tuple[float]:
         """Center the trainer on screen without
         showing anything past the area boundaries.
         """
@@ -171,16 +163,14 @@ class Game():
         if area.rect.w <= self.gba_dimensions[0]:
             x_from_center = (self.gba_dimensions[0] - area.rect.w) / 2
         else:
-            x_from_center = pg.math.clamp(
-                screen_center[0] - trainer_center[0],
-                self.gba_dimensions[0] - area.dimensions()[0], 0)
+            x_from_center = pg.math.clamp(screen_center[0] - trainer_center[0],
+                                          self.gba_dimensions[0] - area.dimensions()[0], 0)
 
         if area.rect.h <= self.gba_dimensions[1]:
             y_from_center = (self.gba_dimensions[1] - area.rect.h) / 2
         else:
-            y_from_center = pg.math.clamp(
-                screen_center[1] - trainer_center[1],
-                self.gba_dimensions[1] - area.dimensions()[1], 0)
+            y_from_center = pg.math.clamp(screen_center[1] - trainer_center[1],
+                                          self.gba_dimensions[1] - area.dimensions()[1], 0)
 
         return (floor(x_from_center), floor(y_from_center))
 
@@ -212,9 +202,8 @@ class Game():
     def next_page(self):
         self.dialog.next_page()
 
-    def preview_entities(
-        self, area: Area, trainer: Trainer,
-        surface: pg.Surface, camera_offset: tuple[float]) -> pg.Surface:
+    def preview_entities(self, area: Area, trainer: Trainer, surface: pg.Surface,
+                         camera_offset: tuple[float]) -> pg.Surface:
         """Draws a preview of an area's entities
         onto [surface]. Used for transitions.
         """
@@ -235,8 +224,7 @@ class Game():
         snapshot = pg.Surface(self.gba_dimensions)
         snapshot.fill(GRAY)
         snapshot.blit(area.image, camera_offset)
-        snapshot = self.preview_entities(
-            area, trainer, snapshot, camera_offset)
+        snapshot = self.preview_entities(area, trainer, snapshot, camera_offset)
 
         return snapshot
 
@@ -252,12 +240,9 @@ class Game():
             return
 
         if self.state == 'loop':
-            map_events = self.area.get_tile_events(
-                location=self.trainer.grid_location, active=True)
+            map_events = self.area.get_tile_events(location=self.trainer.grid_location, active=True)
             try:
-                self.next_A_action = [e['event']['type'] \
-                    for e in map_events \
-                    if e['facing'] == self.trainer.facing][0]
+                self.next_A_action = [e['event']['type'] for e in map_events if e['facing'] == self.trainer.facing][0]
             except IndexError:
                 self.next_A_action = ''
 
@@ -279,14 +264,11 @@ class Game():
 
     def sort_entites_for_display(self) -> list[Doodad|Trainer]:
         # Doodads are already sorted by Y value
-        behind_trainer = [d for d in self.area.doodads \
-            if d.grid_location.y <= self.trainer.grid_location.y]
-        in_front_of_trainer = [d for d in self.area.doodads \
-            if d.grid_location.y > self.trainer.grid_location.y]
+        behind_trainer = [d for d in self.area.doodads if d.grid_location.y <= self.trainer.grid_location.y]
+        in_front_of_trainer = [d for d in self.area.doodads if d.grid_location.y > self.trainer.grid_location.y]
 
         # Only check overlaps for nearby, valid entities
-        for doodad in [d for d in self.area.doodads \
-            if d.show_in_front_of_trainer]:
+        for doodad in [d for d in self.area.doodads if d.show_in_front_of_trainer]:
             if doodad.is_nearby(self.trainer.grid_location):
                 if doodad.is_colliding_with(self.trainer.rect):
                     doodad.draw_foreground_image = True
@@ -295,26 +277,19 @@ class Game():
 
     def update(self):
         if self.state == 'loop':
-            trainer_direction = self.controller.get_dpad_input() \
-                if not self.ignore_dpad_input else None
-            self.trainer.update(
-                area=self.area,
-                direction=trainer_direction,
-                B_pressed=self.controller.button('B').is_down,
-                run_enabled=self.area.is_running_allowed()
-            )
+            trainer_direction = self.controller.get_dpad_input() if not self.ignore_dpad_input else None
+            self.trainer.update(area=self.area, direction=trainer_direction,
+                                B_pressed=self.controller.button('B').is_down,
+                                run_enabled=self.area.is_running_allowed())
 
             self.area.update()
 
-            self.execute_area_event(
-                self.area.get_tile_events(location=self.trainer.grid_location,
-                                          active=False))
+            self.execute_area_event(self.area.get_tile_events(location=self.trainer.grid_location, active=False))
 
             if self.controller.button('START').flag:
                 self.show_menu()
 
-        self.camera_offset = self.get_camera_offset(
-            self.area, self.trainer.center())
+        self.camera_offset = self.get_camera_offset(self.area, self.trainer.center())
 
         if self.dialog:
             self.dialog.update()
@@ -355,33 +330,29 @@ class Game():
                 self.state = 'loop'
                 self.controller.poll()
 
-        if self.state == 'loop':
-            if self.dialog:
-                self.gba_screen.blit(self.dialog.image, self.dialog.box_offset)
-
         if self.state in ['loop', 'menu']:
             self.draw_area()
             self.sort_and_draw_entities()
             self.draw_doodads()
 
+        if self.state == 'loop':
+            if self.dialog:
+                self.gba_screen.blit(self.dialog.image, self.dialog.box_offset)
+
         for menu in self.menus:
             self.gba_screen.blit(menu.image, menu.coords)
 
         # Debug stuff
-        a = self.btn_a_pressed if self.controller.button('A').is_down \
-            else self.btn_a
-        b = self.btn_b_pressed if self.controller.button('B').is_down \
-            else self.btn_b
+        a = self.btn_a_pressed if self.controller.button('A').is_down else self.btn_a
+        b = self.btn_b_pressed if self.controller.button('B').is_down else self.btn_b
         self.gba_screen.blit(a, (204 + 18, 12))
         self.gba_screen.blit(b, (204 + 4, 16))
-        text = self.debug.render(
-            f'{self.trainer.grid_location}', False, BLACK)
+        text = self.debug.render(f'{self.trainer.grid_location}', False, BLACK)
         self.gba_screen.blit(text, (20, 12))
 
         self.upsize_and_display_screen()
 
     def upsize_and_display_screen(self):
         self.screen.fill(GRAY)
-        pg.transform.scale(self.gba_screen,
-                           (pg.display.get_window_size()), self.screen)
+        pg.transform.scale(self.gba_screen, (pg.display.get_window_size()), self.screen)
         pg.display.flip()

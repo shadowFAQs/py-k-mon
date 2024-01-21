@@ -59,17 +59,14 @@ class Menu(pg.sprite.Sprite):
                 return None, ''
 
     def get_cursor_coords(self) -> tuple[int]:
-        return (self.cursor_offset[0],
-                self.cursor_offset[1] + self.cursor_position * self.row_height)
+        return (self.cursor_offset[0], self.cursor_offset[1] + self.cursor_position * self.row_height)
 
     def load_images(self):
-        self.background = colorkeyed_surface_from_file(
-            'lib', 'menu', f'{self.name}.png')
+        self.background = colorkeyed_surface_from_file('lib', 'menu', f'{self.name}.png')
         self.image = colorkeyed_surface(self.background.get_size(), fill=True)
 
         if self.cursor_type:
-            self.cursor = colorkeyed_surface_from_file(
-                'lib', 'menu', f'{self.cursor_type}_cursor.png')
+            self.cursor = colorkeyed_surface_from_file('lib', 'menu', f'{self.cursor_type}_cursor.png')
 
     def navigate(self, direction: str):
         match direction:
@@ -80,11 +77,8 @@ class Menu(pg.sprite.Sprite):
             case _:
                 return
 
-        self.cursor_position = increment_with_wrap(
-            value=self.cursor_position,
-            increment=mod,
-            max_value=len(self.items) - 1
-        )
+        self.cursor_position = increment_with_wrap(value=self.cursor_position, increment=mod,
+                                                   max_value=len(self.items) - 1)
 
     def select(self, arg):
         print(f'Selected {self.item_labels[self.cursor_position]}')
@@ -103,8 +97,7 @@ class Overworld_Sidebar(Menu):
         self.coords          = (159, 1)
         self.cursor_type     = 'row'
         self.cursor_offset   = (8, 8)
-        self.item_labels     = ['POKéDEX', 'POKéMON', 'BAG', 'ASH', 'SAVE',
-                                'OPTION', 'EXIT']
+        self.item_labels     = ['POKéDEX', 'POKéMON', 'BAG', 'ASH', 'SAVE', 'OPTION', 'EXIT']
         self.name            = 'overworld_sidebar'
         self.row_height      = 14
         self.text_offset     = (8, 14)
@@ -114,10 +107,6 @@ class Overworld_Sidebar(Menu):
 
     def set_items(self):
         for row, item in enumerate(self.item_labels):
-            self.items.append(
-                dict(
-                    image=self.font.render_text(item),
-                    coords=(self.text_offset[0] + self.cursor_offset[0],
-                            self.text_offset[1] * row + self.cursor_offset[1])
-                )
-            )
+            self.items.append(dict(image=self.font.render_text(item),
+                                   coords=(self.text_offset[0] + self.cursor_offset[0],
+                                           self.text_offset[1] * row + self.cursor_offset[1])))

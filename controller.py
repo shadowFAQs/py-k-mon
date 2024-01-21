@@ -12,8 +12,7 @@ class Button():
 
     def as_int(self) -> int:
         if not self.dpad:
-            raise RuntimeError(
-                f'Button "{self.name}" cannot be interpreted as an int')
+            raise RuntimeError(f'Button "{self.name}" cannot be interpreted as an int')
         return ['UP', 'DOWN', 'LEFT', 'RIGHT'].index(self.name)
 
     def press(self):
@@ -83,14 +82,12 @@ class Controller():
                 buttons = ['UP', 'DOWN', 'LEFT', 'RIGHT']
                 bindings = [pg.K_w, pg.K_s, pg.K_a, pg.K_d]
                 for n in range(len(buttons)):
-                    self.buttons.append(Button(
-                        name=buttons[n], binding=bindings[n], dpad=True))
+                    self.buttons.append(Button(name=buttons[n], binding=bindings[n], dpad=True))
 
                 buttons = ['A', 'B', 'START']
                 bindings = [pg.K_u, pg.K_h, pg.K_SPACE]
                 for n in range(len(buttons)):
-                    self.buttons.append(Button(
-                        name=buttons[n], binding=bindings[n]))
+                    self.buttons.append(Button(name=buttons[n], binding=bindings[n]))
 
     def update(self):
         for button in self.buttons:

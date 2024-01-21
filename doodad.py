@@ -27,16 +27,10 @@ class Doodad(Entity):
         return f'{self.formatted_name.replace("_", " ")} @ {self.grid_location}'
 
     def load_images(self):
-        image = pg.image.load(
-            os.path.join('lib', self.entity_type,
-                         f'{self.formatted_name}.png'))
+        image = pg.image.load(os.path.join('lib', self.entity_type, f'{self.formatted_name}.png'))
         sheet_width = 16 if self.animated else image.get_width()
-        base = self.load_sheet(
-            entity_type=self.entity_type,
-            sheet_name=f'{self.formatted_name}.png',
-            sheet_width=sheet_width,
-            flip=False
-        )
+        base = self.load_sheet(entity_type=self.entity_type, sheet_name=f'{self.formatted_name}.png',
+                               sheet_width=sheet_width, flip=False)
         self.images['stand'] = [base] * 4
 
     def set_foreground_image(self):

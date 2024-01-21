@@ -13,8 +13,7 @@ def colorkeyed_surface(dimensions: tuple[int], fill: bool=False) -> pg.Surface:
     return surface
 
 
-def colorkeyed_surface_from_file(*filepath_parts: str,
-                                 fill: bool=False) -> pg.Surface:
+def colorkeyed_surface_from_file(*filepath_parts: str, fill: bool=False) -> pg.Surface:
     surface = pg.image.load(os.path.join(*filepath_parts))
     surface.set_colorkey(TRANSPARENT)
     if fill:
